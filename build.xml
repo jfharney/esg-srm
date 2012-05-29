@@ -1,0 +1,61 @@
+<!-- 
+  Author: John Harney
+
+  Description:
+  This is the ant build file for the esg-srm project
+
+
+-->
+
+<project name="esg-srm" default="make" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+  <property name="module" value="esg-srm" />
+  <property name="organization" value="Earth Systems Grid Federation" />
+
+<!--
+  Global Initialization and Prepartation...
+-->
+ 
+
+  <target name="init" description="initialization">
+    <echo message="Initialization build environment..." />
+    <echo message="User property file ${user.home}" />
+
+    <exec executable="bash" dir="${basedir}" outputproperty="version_num">
+      <arg value="-c"/>
+      <arg value="git describe | sed -n 's/v\([a-zA-Z0-9.]*\)[-]*.*/\1/p'"/>
+    </exec>
+
+    <exec executable="bash" dir="${basedir}" outputproperty="branch">
+      <arg value="-c"/>
+      <arg value="git branch | grep '*' | sed -n 's/\*[ ]*//p'"/>
+    </exec>
+
+    <exec executable="bash" dir="${basedir}" outputproperty="commit">
+      <arg value="-c"/>
+      <arg value="git describe"/>
+    </exec>
+
+    <exec executable="bash" dir="${basedir}" outputproperty="release_name">
+      <arg value="-c"/>
+      <arg value="git tag | sed -ne 's/\(v[0-9]*\.[0-9]*\)-\([a-zA-Z0-9_-]*\)-release.*$/\2/p' | sort -k1,1 | tail -n 1" />
+    </exec>
+
+<!-- **static defines** -->
+
+    <property name="version_num" value="0.0.0"/>
+    <filter token="version_num" value="${version_num}"/>
+    <property name="branch" value="[nobranch]"/>
+    <filter token="branch" value="${branch}"/>
+    <property name="commit" value="ffffff"/>
+    <filter token="commit" value="${commit}"/>
+    <property name="release_name" value="no_name" />
+    <filter token="release_name" value="${release_name}"/>
+    <filter token="module" value="${module}"/>
+
+    <echo message="branch: ${branch}"/>
+
+  </target>
+
+
+
+</project>
