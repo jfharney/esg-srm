@@ -20,13 +20,20 @@
         <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
         <context:exclude-filter expression="org.springframework.stereotype.Repository" type="annotation"/>
     </context:component-scan>
+    
+
+  
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+    
+    
+    
+    
 <!--  
     <bean id="viewResolver" class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
       <property name="basename" value="views" />
     </bean>
--->
+
 
     <bean id="jspFilenameMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
       <property name="order" value="1000" />
@@ -37,6 +44,8 @@
       </property>
     </bean>
     <bean id="urlFilenameViewController" class="org.springframework.web.servlet.mvc.UrlFilenameViewController" />
+-->
+
 <!--   -->   
 
 </beans>
