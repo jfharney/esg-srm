@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
 	
-	<display-name>srm</display-name>
+	<display-name>esg-srm</display-name>
 	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

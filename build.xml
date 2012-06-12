@@ -257,6 +257,9 @@
 	  description="(Java compiles all the main source code)">
     <echo message="Java compiling ${module}..."/> 
     
+
+    <delete dir="${build_dir}"/>
+  	
     <mkdir dir="${build_dir}" />
     <mkdir dir="${depcache_dir}" />
    
@@ -269,7 +272,8 @@
    <!--
       Insert a mkdir in case there is no src dir
    -->
-   
+
+  	
     <javac srcdir="${src_dir}"
 	   destdir="${build_dir}" 
 	   includes="**/*.java" 
