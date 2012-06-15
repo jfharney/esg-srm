@@ -20,10 +20,18 @@ public class SRMRequestController {
 		System.out.println("In getSRMRequest");
 		String response = "<srm_url>srm</srm_url>";
 		
-		String openId = request.getParameter("openid");
-		String proxy = request.getParameter("proxy");
+		SRMRequestObject obj = new SRMRequestObject();
 		
-		System.out.println("OpenId=" + openId +"\nProxy="+proxy);
+		obj.setOpenId(request.getParameter("openid"));
+		obj.setProxyId(request.getParameter("proxyid"));
+		obj.setProxyPwd(request.getParameter("pass"));
+		obj.setUrl(request.getParameter("url"));
+		
+		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl());
+		
+		if(obj.getOpenId()==null || obj.getOpenId().contentEquals("")){
+			System.out.println("Null openid");
+		}
 	
 		return response;
 	}
