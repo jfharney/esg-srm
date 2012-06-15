@@ -19,6 +19,11 @@ public class SRMRequestController {
     public @ResponseBody String getSRMRequest(HttpServletRequest request) {
 		System.out.println("In getSRMRequest");
 		String response = "<srm_url>srm</srm_url>";
+		
+		String openId = request.getParameter("openid");
+		String proxy = request.getParameter("proxy");
+		
+		System.out.println("OpenId=" + openId +"\nProxy="+proxy);
 	
 		return response;
 	}

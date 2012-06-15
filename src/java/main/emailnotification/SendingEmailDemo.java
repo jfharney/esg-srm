@@ -21,13 +21,17 @@ public class SendingEmailDemo {
         
 		Properties prop = new Properties();
 		try {
-            prop.load(new FileInputStream("../mail.properties"));
+			System.out.println("In try block");
+            prop.load(new FileInputStream("./src/java/main/mail.properties"));
+            System.out.println("Reading");
             host = prop.getProperty("mailHost");
             port = prop.getProperty("mailPort");
             from = prop.getProperty("mailFrom");
             to = prop.getProperty("mailTo");
             subject = prop.getProperty("mailSubject");
             body = prop.getProperty("mailBody");
+            
+            System.out.println("Host: "+ host +"\nPort: "+ port + "\nFrom: " + from + "\nTo: " + to + "\nSubject: " + subject + "\nBody: " + body);
 	    } catch (Exception e) {
 	    	System.out.println("SendingEmailDemo: Something Went wrong while reading the property file");
 	    }
@@ -66,7 +70,7 @@ public class SendingEmailDemo {
             //
             // Send the message to the recipient.
             //
-            Transport.send(message);
+//            Transport.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
