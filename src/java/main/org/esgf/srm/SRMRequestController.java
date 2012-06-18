@@ -20,19 +20,35 @@ public class SRMRequestController {
 		System.out.println("In getSRMRequest");
 		String response = "<srm_url>srm</srm_url>";
 		
-		SRMRequestObject obj = new SRMRequestObject();
+		SRMRequestObject obj = new SRMRequestObject(request);
 		
-		obj.setOpenId(request.getParameter("openid"));
-		obj.setProxyId(request.getParameter("proxyid"));
-		obj.setProxyPwd(request.getParameter("pass"));
-		obj.setUrl(request.getParameter("url"));
+//		obj.setOpenId(request.getParameter("openid"));
+//		obj.setProxyId(request.getParameter("proxyid"));
+//		obj.setProxyPwd(request.getParameter("pass"));
+//		obj.setUrl(request.getParameter("url"));
 		
 		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl());
 		
+		//If null or empty OpenId
 		if(obj.getOpenId()==null || obj.getOpenId().contentEquals("")){
 			System.out.println("Null openid");
 		}
+		
+		//If null or empty ProxyId
+		if(obj.getProxyId()==null || obj.getProxyId().contentEquals("")){
+			System.out.println("Null ProxId");
+		}
 	
+		//If null or empty Password
+		if(obj.getProxyPwd()==null || obj.getProxyPwd().contentEquals("")){
+			System.out.println("Null Proxy Password");
+		}
+	
+		//If null or empty url
+		if(obj.getUrl()==null || obj.getUrl().contentEquals("")){
+			System.out.println("Null URL");
+		}
+		
 		return response;
 	}
 	

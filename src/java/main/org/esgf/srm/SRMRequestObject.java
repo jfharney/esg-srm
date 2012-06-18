@@ -1,10 +1,19 @@
 package org.esgf.srm;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class SRMRequestObject {
 	private String openId;
 	private String proxyId;
 	private String proxyPwd;
 	private String url;
+	
+	public SRMRequestObject(HttpServletRequest request){
+		this.openId = request.getParameter("openid");
+		this.proxyId = request.getParameter("proxyid");
+		this.proxyPwd = request.getParameter("pass");
+		this.url = request.getParameter("url");
+	}
 	
 	public String getOpenId() {
 		return openId;
