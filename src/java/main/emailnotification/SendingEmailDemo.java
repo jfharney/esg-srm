@@ -6,18 +6,20 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import java.util.Date;
 import java.util.Properties;
 import java.io.*;
  
 
 public class SendingEmailDemo {
 	public static void main(String[] args) {
-		String from = "esonu@uga.edu";
-        String to = "ekhlasssonu@yahoo.com";
+		String from = "sonues@ornl.gov";
+        String to = "ekhlas.sonu@gmail.com";
         String subject = "Hi There...";
         String body = "How are you?";
-        String host = "smtp.gmail.com";
-        String port = "25";
+        String host = "smtp.mail.ornl.gov";
+        String port = "443";
         
 		Properties prop = new Properties();
 		try {
@@ -33,8 +35,9 @@ public class SendingEmailDemo {
             
             System.out.println("Host: "+ host +"\nPort: "+ port + "\nFrom: " + from + "\nTo: " + to + "\nSubject: " + subject + "\nBody: " + body);
 	    } catch (Exception e) {
-	    	System.out.println("SendingEmailDemo: Something Went wrong while reading the property file");
+	    	System.out.println("SendingEmailDemo: Something went wrong while reading the property file");
 	    }
+		
 		
 //        String from = "ekhlas.sonu@gmail.com";
 		
@@ -48,6 +51,7 @@ public class SendingEmailDemo {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", host);
         properties.put("mail.smtp.port", port);
+        properties.put("mail.debug", "true");
         Session session = Session.getDefaultInstance(properties, null);
  
         try {
@@ -66,11 +70,12 @@ public class SendingEmailDemo {
                     new InternetAddress(to));
             message.setSubject(subject);
             message.setText(body);
+            message.setSentDate(new Date());
  
             //
             // Send the message to the recipient.
             //
-//            Transport.send(message);
+            Transport.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
