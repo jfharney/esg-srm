@@ -1,5 +1,8 @@
 package org.esgf.srm;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 public class SRMRequestObject {
@@ -64,11 +67,64 @@ public class SRMRequestObject {
 		this.url = url;
 	}
 	
-	public String formBeStManRequest(){
+	@SuppressWarnings("unchecked")
+	public int formBeStManRequest(){
 		String request = "";
 		//Code to form request
 		
-		return request;
+		//Arguments for BeStMan
+		String serverURL = "";
+		String logPath = "";	
+		String storageInfo = "";	
+		String fileType = "";
+		String targetStorageInfo = "";
+		String surl = "";
+		String turl = "";
+		
+		//TODO: Initialize all arguments here
+		
+		boolean debug = false;
+		boolean silent = false;
+		
+		ArrayList argsList = new ArrayList<String>();
+		
+		argsList.add("-serviceurl");
+		argsList.add(serverURL);
+		
+		argsList.add("-logPath");
+		argsList.add(logPath);
+		
+		argsList.add("-storageinfo");
+		argsList.add(storageInfo);
+		
+		argsList.add("-filetype");
+		argsList.add(fileType);
+		
+		argsList.add("-targetstorageinfo");
+		argsList.add(targetStorageInfo);
+		
+		argsList.add("-surls");
+		argsList.add(surl);
+		
+		argsList.add("-turls");
+		argsList.add(turl);
+			
+		if(debug){
+			argsList.add("-debug");
+		}
+		if(silent){
+			argsList.add("-silent");
+		}
+		
+		String args[] = new String[argsList.size()];
+		
+		for(int i=0; i<argsList.size(); i++){
+			args[i] = argsList.get(i).toString();
+		}
+		
+		//TODO: Call the function with args as arguments.
+				
+		return 0;
 	}
 	
 }

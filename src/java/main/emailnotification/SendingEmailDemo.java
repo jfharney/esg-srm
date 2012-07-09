@@ -7,6 +7,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import javax.activation.*;
+
 import java.util.Date;
 import java.util.Properties;
 import java.io.*;
@@ -20,20 +22,22 @@ public class SendingEmailDemo {
         String body = "How are you?";
         String host = "smtp.mail.ornl.gov";
         String port = "443";
+        String password = "";
         
 		Properties prop = new Properties();
 		try {
-			System.out.println("In try block");
+//			System.out.println("In try block");
             prop.load(new FileInputStream("./src/java/main/mail.properties"));
-            System.out.println("Reading");
+//            System.out.println("Reading");
             host = prop.getProperty("mailHost");
             port = prop.getProperty("mailPort");
             from = prop.getProperty("mailFrom");
             to = prop.getProperty("mailTo");
             subject = prop.getProperty("mailSubject");
             body = prop.getProperty("mailBody");
+            password = prop.getProperty("pass");
             
-            System.out.println("Host: "+ host +"\nPort: "+ port + "\nFrom: " + from + "\nTo: " + to + "\nSubject: " + subject + "\nBody: " + body);
+//            System.out.println("Host: "+ host +"\nPort: "+ port + "\nFrom: " + from + "\nTo: " + to + "\nSubject: " + subject + "\nBody: " + body);
 	    } catch (Exception e) {
 	    	System.out.println("SendingEmailDemo: Something went wrong while reading the property file");
 	    }
@@ -49,9 +53,15 @@ public class SendingEmailDemo {
         // Message object.
         //
         Properties properties = new Properties();
+        properties.put("mail.smtp.starttls.enable", "true");
         properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.user", "e1g");
         properties.put("mail.smtp.port", port);
-        properties.put("mail.debug", "true");
+        properties.put("mail.smtp.password", password);
+        properties.put("mail.smtp.auth", "true");
+//        properties.put("mail.debug", "true");
+        properties.setProperty("mail.smtp.quitwait", "false");
+        
         Session session = Session.getDefaultInstance(properties, null);
  
         try {
@@ -75,7 +85,17 @@ public class SendingEmailDemo {
             //
             // Send the message to the recipient.
             //
-            Transport.send(message);
+//          Transport.send(message);
+            
+            message.saveChanges();
+            Transport transport = session.getTransport("smtp");
+            System.out.println("Connecting...");
+            transport.connect(host, "e1g", password);
+            System.out.println("Connection established... Sending email...");
+            transport.sendMessage(message, message.getAllRecipients());
+            System.out.println("Closing connection...");
+            transport.close();
+
         } catch (MessagingException e) {
             e.printStackTrace();
         }
