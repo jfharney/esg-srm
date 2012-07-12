@@ -1,9 +1,13 @@
 package org.esgf.srm;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import gov.lbl.srm.client.main.*;
 
 public class SRMRequestObject {
 	private String openId;
@@ -67,54 +71,23 @@ public class SRMRequestObject {
 		this.url = url;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public int formBeStManRequest(){
-		String request = "";
-		//Code to form request
+	public int formBeStManCopyRequest(){
 		
-		//Arguments for BeStMan
-		String serverURL = "";
-		String logPath = "";	
-		String storageInfo = "";	
-		String fileType = "";
-		String targetStorageInfo = "";
-		String surl = "";
+		String surl = url;
 		String turl = "";
 		
-		//TODO: Initialize all arguments here
+		//TODO: Initialize all arguments to SRMcopy here
 		
-		boolean debug = false;
-		boolean silent = false;
+		//TODO: assign the value of turl
 		
-		ArrayList argsList = new ArrayList<String>();
 		
-		argsList.add("-serviceurl");
-		argsList.add(serverURL);
+		ArrayList<String> argsList = new ArrayList<String>();
 		
-		argsList.add("-logPath");
-		argsList.add(logPath);
 		
-		argsList.add("-storageinfo");
-		argsList.add(storageInfo);
-		
-		argsList.add("-filetype");
-		argsList.add(fileType);
-		
-		argsList.add("-targetstorageinfo");
-		argsList.add(targetStorageInfo);
-		
-		argsList.add("-surls");
 		argsList.add(surl);
 		
-		argsList.add("-turls");
 		argsList.add(turl);
 			
-		if(debug){
-			argsList.add("-debug");
-		}
-		if(silent){
-			argsList.add("-silent");
-		}
 		
 		String args[] = new String[argsList.size()];
 		
@@ -122,9 +95,39 @@ public class SRMRequestObject {
 			args[i] = argsList.get(i).toString();
 		}
 		
-		//TODO: Call the function with args as arguments.
+		
+		
+//		${JAVA_HOME}/bin/java ${MY_CERT_DIR} ${MY_USER_PROXY} ${MY_GTCPPR} ${MY_MEM_OPT} ${MY_SMEM_OPT} -DSRM.HOME=${SRM_HOME} -Dorg.globus.ogsa.client.timeout=0 -Dlog4j.configuration=${SRM_HOME}/properties/log4j.properties -Djava.security.auth.login.config=${SRM_HOME}/properties/authmod-unix.properties -Djava.endorsed.dirs=${SRM_HOME}/lib/endorsed gov.lbl.srm.client.main.SRMClientN $*
+
+		//TODO: Set environment variables
+		String srm_home = System.getProperty("SRM_HOME");
+		if(srm_home==null || srm_home.equalsIgnoreCase("")){
+			System.setProperty("SRM_HOME", "/usr/local/bestman-2.2.1.3.27");
+		}
+		
+		String java_home = System.getProperty("JAVA_HOME");
+		if(java_home==null || java_home.equalsIgnoreCase("")){
+			System.setProperty("JAVA_HOME", "/usr");
+		}
+		
+		//Finally Call function
+		SRMClientN.main(args);
 				
 		return 0;
 	}
 	
+	
+	//TODO: Remove Later:
+	
+	public static void main(String[] args) throws IOException{
+		System.out.println("Check ProcessBuilder:");
+		
+		ProcessBuilder pb = new ProcessBuilder("mkdir", "testdir");
+		Map<String, String> env = pb.environment();
+//		env.put("VAR1", "myValue");
+//		env.remove("OTHERVAR");
+//		env.put("VAR2", env.get("VAR1") + "suffix");
+		pb.directory(new File("/Users/e1g/Desktop/"));
+		Process p = pb.start();
+	}
 }

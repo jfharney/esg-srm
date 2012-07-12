@@ -15,7 +15,7 @@ import java.io.*;
  
 
 public class SendingEmailDemo {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		String from = "sonues@ornl.gov";
         String to = "ekhlas.sonu@gmail.com";
         String subject = "Hi There...";
@@ -35,7 +35,9 @@ public class SendingEmailDemo {
             to = prop.getProperty("mailTo");
             subject = prop.getProperty("mailSubject");
             body = prop.getProperty("mailBody");
-            password = prop.getProperty("pass");
+            System.out.println("Enter Password: ");
+            BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+            password = bufferRead.readLine();
             
 //            System.out.println("Host: "+ host +"\nPort: "+ port + "\nFrom: " + from + "\nTo: " + to + "\nSubject: " + subject + "\nBody: " + body);
 	    } catch (Exception e) {
@@ -87,6 +89,8 @@ public class SendingEmailDemo {
             //
 //          Transport.send(message);
             
+            
+            
             message.saveChanges();
             Transport transport = session.getTransport("smtp");
             System.out.println("Connecting...");
@@ -95,7 +99,8 @@ public class SendingEmailDemo {
             transport.sendMessage(message, message.getAllRecipients());
             System.out.println("Closing connection...");
             transport.close();
-
+            
+            
         } catch (MessagingException e) {
             e.printStackTrace();
         }

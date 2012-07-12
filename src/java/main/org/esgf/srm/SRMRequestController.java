@@ -2,6 +2,7 @@ package org.esgf.srm;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,7 @@ public class SRMRequestController {
 		
 		
 		//TODO: Invoke BeStMan Here
-		obj.formBeStManRequest();
+		obj.formBeStManCopyRequest();
 		
 		return response;
 	}
@@ -47,6 +48,20 @@ public class SRMRequestController {
 	public @ResponseBody void removeEmployee(HttpServletRequest request) {
 		System.out.println("In removeSRMRequest");
 		
+	}
+	
+	public static void main(String args[]){
+		final MockHttpServletRequest mockRequest7 = new MockHttpServletRequest();
+
+		String openid7 = "openid1";
+		String name7 = "name1";
+//		String body7 = BookmarkVars.datacartPayloadTest1;
+		mockRequest7.addParameter("openid", openid7);
+		mockRequest7.addParameter("name", name7);
+//	    mockRequest7.addParameter("body", body7);
+//	    mockRequest7.addParameter("db", DB_TYPE);
+	    
+	    
 	}
 	
 	
