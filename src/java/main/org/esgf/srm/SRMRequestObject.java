@@ -100,15 +100,18 @@ public class SRMRequestObject {
 //		${JAVA_HOME}/bin/java ${MY_CERT_DIR} ${MY_USER_PROXY} ${MY_GTCPPR} ${MY_MEM_OPT} ${MY_SMEM_OPT} -DSRM.HOME=${SRM_HOME} -Dorg.globus.ogsa.client.timeout=0 -Dlog4j.configuration=${SRM_HOME}/properties/log4j.properties -Djava.security.auth.login.config=${SRM_HOME}/properties/authmod-unix.properties -Djava.endorsed.dirs=${SRM_HOME}/lib/endorsed gov.lbl.srm.client.main.SRMClientN $*
 
 		//TODO: Set environment variables
-		String srm_home = System.getProperty("SRM_HOME");
-		if(srm_home==null || srm_home.equalsIgnoreCase("")){
-			System.setProperty("SRM_HOME", "/usr/local/bestman-2.2.1.3.27");
-		}
+		System.setProperty("SRM.HOME", "${SRM_HOME}");
 		
-		String java_home = System.getProperty("JAVA_HOME");
-		if(java_home==null || java_home.equalsIgnoreCase("")){
-			System.setProperty("JAVA_HOME", "/usr");
-		}
+		//TODO: SET THESE... FIGURE OUT
+//		${MY_CERT_DIR} ${MY_USER_PROXY} ${MY_GTCPPR} ${MY_MEM_OPT} ${MY_SMEM_OPT}
+		
+		System.setProperty("org.globus.ogsa.client.timeout", "0");
+		
+		System.setProperty("log4j.configuration", "${SRM_HOME}/properties/log4j.properties");
+		
+		System.setProperty("java.security.auth.login.config", "${SRM_HOME}/properties/authmod-unix.properties");
+		
+		System.setProperty("java.endorsed.dirs", "${SRM_HOME}/lib/endorsed");
 		
 		//Finally Call function
 		SRMClientN.main(args);
