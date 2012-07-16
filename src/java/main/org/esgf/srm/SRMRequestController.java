@@ -31,7 +31,7 @@ public class SRMRequestController {
 		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl());
 		
 		
-		//TODO: Invoke BeStMan Here
+		//TODO: Invoke BeStMan here
 		obj.formBeStManCopyRequest();
 		
 		return response;
