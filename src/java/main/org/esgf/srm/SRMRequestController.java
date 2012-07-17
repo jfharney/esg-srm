@@ -1,5 +1,7 @@
 package org.esgf.srm;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -17,7 +19,7 @@ public class SRMRequestController {
 
 	
 	@RequestMapping(method=RequestMethod.GET, value="/srmrequest")
-    public @ResponseBody String getSRMRequest(HttpServletRequest request) {
+    public @ResponseBody String getSRMRequest(HttpServletRequest request) throws IOException {
 		System.out.println("In getSRMRequest");
 		String response = "<srm_url>srm</srm_url>";
 		
@@ -33,6 +35,7 @@ public class SRMRequestController {
 		
 		//TODO: Invoke BeStMan here
 		obj.formBeStManCopyRequest();
+		obj.callBeStManCopyScript();
 		
 		return response;
 	}

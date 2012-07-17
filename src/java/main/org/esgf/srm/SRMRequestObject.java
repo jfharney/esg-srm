@@ -201,7 +201,7 @@ public class SRMRequestObject {
 		
 		tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
 		
-		String classPath = SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
+		String classPath = env.get("CLASSPATH") +":"+ SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
 		env.put("CLASSPATH", classPath);
 		
@@ -221,6 +221,14 @@ public class SRMRequestObject {
 		//Finally Call function
 		SRMClientN.main(args);
 				
+		return 0;
+	}
+	
+	public int callBeStManCopyScript() throws IOException{
+		String turl = "/tmp/temp_turl.nc";
+		ProcessBuilder pb = new ProcessBuilder("srm-copy", "url", turl);
+		pb.directory(new File("/usr/local/bestman/bin"));
+		pb.start();
 		return 0;
 	}
 	
