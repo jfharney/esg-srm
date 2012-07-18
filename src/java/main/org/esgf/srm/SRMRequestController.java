@@ -34,8 +34,11 @@ public class SRMRequestController {
 		
 		
 		//TODO: Invoke BeStMan here
-		obj.formBeStManCopyRequest();
-		obj.callBeStManCopyScript();
+		obj.runBeStManCopyRequest();
+//		obj.callBeStManCopyScript();
+		
+//		obj.runBeStManLSRequest();
+//		obj.runBeStManLSScript();
 		
 		return response;
 	}
