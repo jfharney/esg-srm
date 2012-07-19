@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -182,14 +183,14 @@ public class SRMRequestObject {
 		
 		
 		//Probably makes no difference to remove the following if block
-		if(env.get("X509_USER_PROXY")!=null || env.get("X509_USER_PROXY")!=""){
+		if(env.get("X509_USER_PROXY")!=null && env.get("X509_USER_PROXY")!=""){
 			System.setProperty("X509_USER_PROXY", env.get("X509_USER_PROXY"));
 		}
 		
 		File ogsalibsFolder = new File(SRM_HOME + "/lib/globus");
 		File[] ogsalibsFiles = ogsalibsFolder.listFiles();
 		
-		File ogsalibs2Folder = new File(SRM_HOME = "/lib/globus/client");
+		File ogsalibs2Folder = new File(SRM_HOME + "/lib/globus/client");
 		File[] ogsalibs2Files = ogsalibs2Folder.listFiles();
 		
 		String tmpClassPath = ".";
@@ -200,6 +201,7 @@ public class SRMRequestObject {
 			}
 		}
 		
+		System.out.println("ogsalibs2.size() = "+ogsalibs2Files.length);
 		for(File i : ogsalibs2Files){
 			if(i.getName().endsWith(".jar")){
 				tmpClassPath=tmpClassPath+":"+ SRM_HOME + "/lib/globus/client/" + i.getName();
@@ -328,7 +330,7 @@ public class SRMRequestObject {
 		
 		
 		//Probably makes no difference to remove the following if block
-		if(env.get("X509_USER_PROXY")!=null || env.get("X509_USER_PROXY")!=""){
+		if(env.get("X509_USER_PROXY")!=null && env.get("X509_USER_PROXY")!=""){
 			System.setProperty("X509_USER_PROXY", env.get("X509_USER_PROXY"));
 		}
 		
@@ -388,6 +390,11 @@ public class SRMRequestObject {
 	//TODO: Remove Later:
 	
 	public static void main(String[] args) throws IOException{
+		Properties props = System.getProperties();
+		String userTemp = props.getProperty("user.name");
+		
+		System.out.println(userTemp);
+		
 		System.out.println("Check ProcessBuilder:");
 		
 		ProcessBuilder pb = new ProcessBuilder("mkdir", "testdir");
@@ -395,9 +402,9 @@ public class SRMRequestObject {
 		
 		System.out.println("JAVA_HOME = "+env.get("JAVA_HOME"));
 		
-		env.put("JAVA_HOME","/usr");
-		System.out.println("JAVA_HOME = "+env.get("JAVA_HOME"));
-		
+//		env.put("JAVA_HOME","/usr");
+//		System.out.println("JAVA_HOME = "+env.get("JAVA_HOME"));
+//		
 //		env.put("VAR1", "myValue");
 //		env.remove("OTHERVAR");
 //		env.put("VAR2", env.get("VAR1") + "suffix");
