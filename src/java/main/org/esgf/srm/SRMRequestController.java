@@ -57,16 +57,26 @@ public class SRMRequestController {
 	}
 	
 	public static void main(String args[]){
-		final MockHttpServletRequest mockRequest7 = new MockHttpServletRequest();
+		final MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 
-		String openid7 = "openid1";
-		String name7 = "name1";
-//		String body7 = BookmarkVars.datacartPayloadTest1;
-		mockRequest7.addParameter("openid", openid7);
-		mockRequest7.addParameter("name", name7);
-//	    mockRequest7.addParameter("body", body7);
-//	    mockRequest7.addParameter("db", DB_TYPE);
+		String openId = "openid1";
+		String url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
+					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli048/CCSM4/B_RCP45CN/lnd/DAY_AVG/2092-2101.tar#" +
+					"/tmp/work/gaoyang1/archive/B_RCP45CN_DAY/lnd/hist/2092-2101/B_RCP45CN_DAY.clm2.h1.2101-01-01-00000.nc";
+		String proxyId = "proxyid1";
+		String password = "password";
+
+		mockRequest.addParameter("openid", openId);
+		mockRequest.addParameter("url", url);
+	    mockRequest.addParameter("proxyid", proxyId);
+	    mockRequest.addParameter("pass", password);
 	    
+		SRMRequestController srm = new SRMRequestController();
+		try {
+			String response = srm.getSRMRequest(mockRequest);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	    
 	}
 	

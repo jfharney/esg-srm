@@ -78,7 +78,9 @@ public class SRMRequestObject {
 	public int runBeStManCopyRequest(){
 		
 		String surl = url;
-		String turl = "file:///tmp/temp_turl.nc";
+		String turl = "file:///tmp"+url.substring(url.lastIndexOf("/"));
+		
+		System.out.println("TURL="+turl);
 		
 		if(surl==null || turl == null){
 			return -1;
@@ -195,13 +197,16 @@ public class SRMRequestObject {
 		
 		String tmpClassPath = ".";
 		
+//		System.out.println("ogsalibsFiles.length = "+ ogsalibsFiles.length);
+		
 		for(File i : ogsalibsFiles){
 			if(i.getName().endsWith(".jar")){
 				tmpClassPath=tmpClassPath+":"+ SRM_HOME + "/lib/globus/" + i.getName();
 			}
 		}
 		
-		System.out.println("ogsalibs2.size() = "+ogsalibs2Files.length);
+//		System.out.println("ogsalibs2Files.length = "+ ogsalibs2Files.length);
+		
 		for(File i : ogsalibs2Files){
 			if(i.getName().endsWith(".jar")){
 				tmpClassPath=tmpClassPath+":"+ SRM_HOME + "/lib/globus/client/" + i.getName();
@@ -210,9 +215,21 @@ public class SRMRequestObject {
 		
 		tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
 		
-		String classPath = env.get("CLASSPATH") +":"+ SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
+//		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
+		
+		String classPath = env.get("CLASSPATH");
+		if(env.get("CLASSPATH")!=null){
+			classPath += ":"+ SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
+		}
+		else{
+			classPath = SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
+					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
+		}
+				
 		env.put("CLASSPATH", classPath);
+		
+		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
 		
 		System.setProperty("SRM.HOME", "${SRM_HOME}");
 		
@@ -234,9 +251,13 @@ public class SRMRequestObject {
 	}
 	
 	public int runBeStManCopyScript() throws IOException{
-		String turl = "/tmp/temp_turl.nc";
-		ProcessBuilder pb = new ProcessBuilder("srm-copy", "url", turl);
-		pb.directory(new File("/usr/local/bestman/bin"));
+		String turl = "file:///tmp"+url.substring(url.lastIndexOf("/"));
+		
+		System.out.println("TURL="+turl);
+		ProcessBuilder pb = new ProcessBuilder("/usr/local/bestman/bin/srm-copy", "url", turl);
+//		pb.directory(new File("/usr/local/bestman/bin/"));
+//		pb.directory(new File("/ccs/home/e1g"));
+		
 		pb.start();
 		return 0;
 	}
@@ -381,7 +402,7 @@ public class SRMRequestObject {
 	}
 
 	public int runBeStManLSScript() throws IOException {
-		ProcessBuilder pb = new ProcessBuilder("srm-copy", "url");
+		ProcessBuilder pb = new ProcessBuilder("./srm-ls", "url");
 		pb.directory(new File("/usr/local/bestman/bin"));
 		pb.start();
 		return 0;
