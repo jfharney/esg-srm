@@ -19,8 +19,9 @@ public class SRMRequestController {
 
 	
 	@RequestMapping(method=RequestMethod.GET, value="/srmrequest")
-    public @ResponseBody String getSRMRequest(HttpServletRequest request) throws IOException {
+    public @ResponseBody String getSRMRequest(HttpServletRequest request) throws Exception {
 		System.out.println("In getSRMRequest");
+		System.out.println("TIME: "+System.currentTimeMillis());
 		String response = "<srm_url>srm</srm_url>";
 		
 		SRMRequestObject obj = new SRMRequestObject(request);
@@ -34,6 +35,7 @@ public class SRMRequestController {
 		
 		
 		//TODO: Invoke BeStMan here
+		obj.runBeStManGetRequest();
 		obj.runBeStManCopyRequest();
 //		obj.runBeStManCopyScript();
 		

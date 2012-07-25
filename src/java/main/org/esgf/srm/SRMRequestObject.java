@@ -5,10 +5,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
+import gov.lbl.srm.client.exception.SRMClientException;
 import gov.lbl.srm.client.main.*;
+import gov.lbl.srm.client.util.*;
+import gov.lbl.srm.StorageResourceManager.*;
+import gov.lbl.srm.client.wsdl.*;
+
+import org.apache.log4j.PropertyConfigurator;
+
 
 public class SRMRequestObject {
 	private String openId;
@@ -213,7 +221,7 @@ public class SRMRequestObject {
 			}
 		}
 		
-		tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
+		/*tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
 		
 //		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
 		
@@ -225,11 +233,11 @@ public class SRMRequestObject {
 		else{
 			classPath = SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
-		}
+		}*/
 				
-		env.put("CLASSPATH", classPath);
+		//env.put("CLASSPATH", classPath);
 		
-		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
+//		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
 		
 		System.setProperty("SRM.HOME", "${SRM_HOME}");
 		
@@ -245,8 +253,68 @@ public class SRMRequestObject {
 		System.setProperty("java.endorsed.dirs", SRM_HOME+"/lib/endorsed");
 		
 		//Finally Call function
-		SRMClientN.main(args);
+		SRMClientN client = new SRMClientN(args, null);
+		
+		System.out.println("Call to ClientN complete");
 				
+		return 0;
+	}
+
+	public int runBeStManGetRequest() throws Exception{
+		String serverUrl = "";
+	    String uid="";
+	    String logPath="";
+	    String log4jlocation="";
+	    String storageInfo="";
+	    String fileType="volatile";
+	    String retentionPolicy="replica";
+	    String accessLatency="online";
+	    boolean debug = false;
+	    boolean silent = false;
+	    boolean releaseFile =false;
+	    boolean delegationNeeded=false;
+	    Vector vec = new Vector ();
+	    
+	    String ttemp = System.getProperty("log4j.configuration");
+	    System.out.println("ttemp = "+ ttemp);
+	    if(ttemp != null && !ttemp.equals("")) {
+	       log4jlocation = ttemp;
+	    }
+	    
+	    String[] surl = new String[1];
+	    surl[0] = url;
+	    
+	    if(surl == null || surl.length == 0) {
+	       System.out.println("Please provide the surls");
+	       System.exit(1);
+	    }
+	    
+	    serverUrl = url.substring(0, url.indexOf("?"));
+	    
+	    System.out.println("Server URL = "+serverUrl);
+	    System.out.println("SURL = "+surl[0]);
+	    
+	    SRMServer cc = new SRMServer(log4jlocation, logPath, debug);
+	    
+	    System.out.println("CC Initialized");
+	    cc.connect(serverUrl);
+	    System.out.println("Connection Established");
+	    cc.ping(uid);
+	    SRMRequest req = new SRMRequest();
+	    req.setSRMServer(cc);
+	    req.setAuthID(uid);
+	    req.setRequestType("get");
+	    req.addFiles(surl, null,null);
+	    req.setStorageSystemInfo(storageInfo);
+	    req.setFileStorageType(fileType);
+	    req.setRetentionPolicy(retentionPolicy);
+	    req.setAccessLatency(accessLatency);
+	    req.submit();
+	    req.checkStatus();
+	      
+	    System.out.println("Request Submitted; Status Checked");
+	    
+		
 		return 0;
 	}
 	
@@ -361,6 +429,7 @@ public class SRMRequestObject {
 		File ogsalibs2Folder = new File(SRM_HOME = "/lib/globus/client");
 		File[] ogsalibs2Files = ogsalibs2Folder.listFiles();
 		
+		/*
 		String tmpClassPath = ".";
 		
 		for(File i : ogsalibsFiles){
@@ -380,6 +449,9 @@ public class SRMRequestObject {
 		String classPath = env.get("CLASSPATH") +":"+ SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
 		env.put("CLASSPATH", classPath);
+		*/
+		
+		System.out.println("Took out classpath");
 		
 		System.setProperty("SRM.HOME", "${SRM_HOME}");
 		
