@@ -1,4 +1,5 @@
-package emailnotification;
+package emailer;
+
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -12,17 +13,44 @@ import javax.activation.*;
 import java.util.Date;
 import java.util.Properties;
 import java.io.*;
- 
 
-public class SendingEmailDemo {
-	public static void main(String[] args) throws IOException {
-		String from = "sonues@ornl.gov";
-        String to = "ekhlas.sonu@gmail.com";
-        String subject = "Hi There...";
-        String body = "How are you?";
-        String host = "smtp.mail.ornl.gov";
-        String port = "443";
-        String password = "";
+
+public class EmailNotifier {
+	private String from;
+	private String to;
+	private String subject;
+	private String body;
+	private String host;
+	private String port;
+	private String password;
+	
+	private String srmRequestLink;	//Identifier for end user. Link for user to identify which request mail is about
+	private String downloadLink;
+	
+	public EmailNotifier(String[] args){
+		from = "sonues@ornl.gov";
+		to = "";
+		subject = "Request Status";
+		body = "Your request has been submitted";
+		host = "smtp.ornl.gov";
+		port = "25";
+		password = "";
+		parseArguments(args);
+	}
+	
+	public void parseArguments(String[] args){
+		for(int i=0; i < args.length; i++){
+			if(args[i].equalsIgnoreCase("-to") && i+1 < args.length){
+				to=args[++i];
+			}
+			if(args[i].equalsIgnoreCase("-reqId") && i+1 < args.length){
+				srmRequestLink=args[++i];
+			}
+		}
+	}
+	
+	public void sendMail() throws IOException {
+		
         
 		Properties prop = new Properties();
 		try {
@@ -33,8 +61,8 @@ public class SendingEmailDemo {
             port = prop.getProperty("mailPort");
             from = prop.getProperty("mailFrom");
             to = prop.getProperty("mailTo");
-            subject = prop.getProperty("mailSubject");
-            body = prop.getProperty("mailBody");
+            subject = prop.getProperty("mailSubjectSubmitted");
+            body = prop.getProperty("mailBodySubmitted1") + " "+ srmRequestLink +" "+ prop.getProperty("mailBodySubmitted2");
             System.out.println("Enter Password: ");
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
             password = bufferRead.readLine();
