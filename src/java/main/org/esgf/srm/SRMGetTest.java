@@ -156,8 +156,7 @@ public class SRMGetTest {
      if(!storageInfo.equals("")) {
        delegationNeeded=true;
      }
-     SRMServer cc = new SRMServer
-			(log4jlocation, logPath, debug);
+     SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
      cc.connect(serverUrl);
      cc.ping(uid);
      SRMRequest req = new SRMRequest();

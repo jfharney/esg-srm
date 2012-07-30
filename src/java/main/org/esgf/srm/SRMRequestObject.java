@@ -3,15 +3,18 @@ package org.esgf.srm;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import gov.lbl.srm.client.exception.SRMClientException;
-import gov.lbl.srm.client.main.*;
-import gov.lbl.srm.client.util.*;
+//import gov.lbl.srm.client.exception.SRMClientException;
+//import gov.lbl.srm.client.main.*;
+//import gov.lbl.srm.client.util.*;
 import gov.lbl.srm.StorageResourceManager.*;
 import gov.lbl.srm.client.wsdl.*;
 
@@ -23,6 +26,7 @@ public class SRMRequestObject {
 	private String proxyId;
 	private String proxyPwd;
 	private String url;
+	private String toemail;
 	
 	public SRMRequestObject(HttpServletRequest request){
 		this.openId = request.getParameter("openid");
@@ -56,6 +60,11 @@ public class SRMRequestObject {
 					"/tmp/work/gaoyang1/archive/B_RCP45CN_DAY/lnd/hist/2092-2101/B_RCP45CN_DAY.clm2.h1.2101-01-01-00000.nc";
 		}
 		
+		this.toemail = request.getParameter("email");
+		//If null or empty url
+		if(this.getUrl()==null || this.getUrl().contentEquals("")){
+			System.out.println("NULL to email id");
+		}
 	}
 	
 	public String getOpenId() {
@@ -82,8 +91,15 @@ public class SRMRequestObject {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	public String getToemail() {
+		return toemail;
+	}
+	public void setToemail(String toemail) {
+		this.toemail = toemail;
+	}
+
 	
-	public int runBeStManCopyRequest(){
+	/*public int runBeStManCopyRequest(){
 		
 		String surl = url;
 		String turl = "file:///tmp"+url.substring(url.lastIndexOf("/"));
@@ -221,7 +237,7 @@ public class SRMRequestObject {
 			}
 		}
 		
-		/*tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
+		tmpClassPath = tmpClassPath + ":" + SRM_HOME + "/lib/endorsed/xalan.jar";
 		
 //		System.out.println("CLASSPATH="+env.get("CLASSPATH"));
 		
@@ -233,7 +249,7 @@ public class SRMRequestObject {
 		else{
 			classPath = SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
-		}*/
+		}
 				
 		//env.put("CLASSPATH", classPath);
 		
@@ -258,9 +274,10 @@ public class SRMRequestObject {
 		System.out.println("Call to ClientN complete");
 				
 		return 0;
-	}
+	}*/
 
-	public int runBeStManGetRequest() throws Exception{
+	@SuppressWarnings("static-access")
+	public String runBeStManGetRequest() throws Exception{
 		String serverUrl = "";
 	    String uid="";
 	    String logPath="";
@@ -270,10 +287,7 @@ public class SRMRequestObject {
 	    String retentionPolicy="replica";
 	    String accessLatency="online";
 	    boolean debug = false;
-	    boolean silent = false;
-	    boolean releaseFile =false;
 	    boolean delegationNeeded=false;
-	    Vector vec = new Vector ();
 	    
 	    String ttemp = System.getProperty("log4j.configuration");
 	    System.out.println("ttemp = "+ ttemp);
@@ -281,8 +295,11 @@ public class SRMRequestObject {
 	       log4jlocation = ttemp;
 	    }
 	    
+	    
 	    String[] surl = new String[1];
 	    surl[0] = url;
+	    
+	    String turl = "";
 	    
 	    if(surl == null || surl.length == 0) {
 	       System.out.println("Please provide the surls");
@@ -294,31 +311,92 @@ public class SRMRequestObject {
 	    System.out.println("Server URL = "+serverUrl);
 	    System.out.println("SURL = "+surl[0]);
 	    
-	    SRMServer cc = new SRMServer(log4jlocation, logPath, debug);
-	    
-	    System.out.println("CC Initialized");
-	    cc.connect(serverUrl);
-	    System.out.println("Connection Established");
-	    cc.ping(uid);
-	    SRMRequest req = new SRMRequest();
-	    req.setSRMServer(cc);
-	    req.setAuthID(uid);
-	    req.setRequestType("get");
-	    req.addFiles(surl, null,null);
-	    req.setStorageSystemInfo(storageInfo);
-	    req.setFileStorageType(fileType);
-	    req.setRetentionPolicy(retentionPolicy);
-	    req.setAccessLatency(accessLatency);
-	    req.submit();
-	    req.checkStatus();
-	      
-	    System.out.println("Request Submitted; Status Checked");
-	    
+	    try{
+	    	if(!storageInfo.equals("")) {
+		       delegationNeeded=true;
+		    }
+		    SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
+		    
+		    System.out.println("CC Initialized");
+		    cc.connect(serverUrl);
+		    System.out.println("Connection Established");
+		    cc.ping(uid);
+		    SRMRequest req = new SRMRequest();
+		    req.setSRMServer(cc);
+		    req.setAuthID(uid);
+		    req.setRequestType("get");
+		    req.addFiles(surl, null,null);
+		    req.setStorageSystemInfo(storageInfo);
+		    req.setFileStorageType(fileType);
+		    req.setRetentionPolicy(retentionPolicy);
+		    req.setAccessLatency(accessLatency);
+		    req.submit();
+		    
+		    //TODO: Send Email Notifying that the request has been submitted
+		    
+		    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+		    
+		    req.checkStatus();
+		    int sleepTime  = 10;
+		    SRMRequestStatus response = req.getStatus();
+		    System.out.println("Request Submitted; Status Checked");
+		    
+		    if(response != null){
+		    	while(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
+		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED)){
+		    		response = req.getStatus();
+		        	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
+			        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
+			        
+			    	System.out.println("Next SRM check in "+ sleepTime + " secs");
+		        	Thread.currentThread().sleep(sleepTime * 1000);
+		        	sleepTime*=2;
+		        	
+		        	if(sleepTime>=600){
+		        		sleepTime=600;
+		        	}
+		        	
+		        	//If failed to extract then exit
+		        	if(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS || 
+		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_FILE_PINNED ||
+		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_QUEUED ||
+		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_INPROGRESS)){
+		        		System.out.println("SRM failed to extract file. Exiting.");
+		        		System.exit(1);
+		        	}
+			    }
+		    	
+		    	if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
+    	          response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED) {
+    	          HashMap map = response.getFileStatuses();
+    	          Set set = map.entrySet();
+    	          Iterator i = set.iterator();
+    	          while(i.hasNext()) {
+    	             Map.Entry me = (Map.Entry) i.next();
+    	             String key =  (String) me.getKey();
+    	             Object value = me.getValue();
+    	             if(value != null) {
+    	                FileStatus fileStatus = (FileStatus) value;
+    	                org.apache.axis.types.URI uri = fileStatus.getTransferSURL();
+    	                System.out.println("\nTransferSURL="+uri);
+    	                
+    	                
+    	                turl = uri.toString();	//Return value
+    	             }
+    	          }//end while
+    	       }//end if
+		    	
+		    }
+		      
+		    
+	    }catch(Exception e) {
+	        e.printStackTrace();
+	    }
 		
-		return 0;
+		return turl;
 	}
 	
-	public int runBeStManCopyScript() throws IOException{
+	/*public int runBeStManCopyScript() throws IOException{
 		String turl = "file:///tmp"+url.substring(url.lastIndexOf("/"));
 		
 		System.out.println("TURL="+turl);
@@ -328,9 +406,9 @@ public class SRMRequestObject {
 		
 		pb.start();
 		return 0;
-	}
+	}*/
 	
-	public int runBeStManLSRequest(){
+	/*public int runBeStManLSRequest(){
 		String surl = url;
 		//Initialize all arguments to SRMls here
 		
@@ -429,7 +507,7 @@ public class SRMRequestObject {
 		File ogsalibs2Folder = new File(SRM_HOME = "/lib/globus/client");
 		File[] ogsalibs2Files = ogsalibs2Folder.listFiles();
 		
-		/*
+		
 		String tmpClassPath = ".";
 		
 		for(File i : ogsalibsFiles){
@@ -449,7 +527,7 @@ public class SRMRequestObject {
 		String classPath = env.get("CLASSPATH") +":"+ SRM_HOME+"/lib/Berkeley.StorageResourceManager-client.jar:" + 
 					SRM_HOME+"/lib/Berkeley.StorageResourceManager-client-stub.jar:" + tmpClassPath;
 		env.put("CLASSPATH", classPath);
-		*/
+		
 		
 		System.out.println("Took out classpath");
 		
@@ -471,14 +549,14 @@ public class SRMRequestObject {
 		
 
 		return 0;
-	}
+	}*/
 
-	public int runBeStManLSScript() throws IOException {
+	/*public int runBeStManLSScript() throws IOException {
 		ProcessBuilder pb = new ProcessBuilder("./srm-ls", "url");
 		pb.directory(new File("/usr/local/bestman/bin"));
 		pb.start();
 		return 0;
-	}
+	}*/
 	
 	//TODO: Remove Later:
 	

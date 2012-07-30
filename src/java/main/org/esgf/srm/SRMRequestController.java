@@ -35,8 +35,10 @@ public class SRMRequestController {
 		
 		
 		//TODO: Invoke BeStMan here
-		obj.runBeStManGetRequest();
-		obj.runBeStManCopyRequest();
+		String turl = obj.runBeStManGetRequest();
+		
+		String response1 = "<srm_url>" + turl + "</srm_url>";
+//		obj.runBeStManCopyRequest();
 //		obj.runBeStManCopyScript();
 		
 //		obj.runBeStManLSRequest();

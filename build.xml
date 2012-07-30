@@ -225,7 +225,7 @@
 	<exclude name="**/*sources.jar"/>
       </fileset>
     	<fileset dir="${lib_bestman_dir}">
-    		<include name="**/*.jar"/>
+    		<include name="*.jar"/>
     		
     	</fileset>
       <pathelement path="${build_dir}"/>
