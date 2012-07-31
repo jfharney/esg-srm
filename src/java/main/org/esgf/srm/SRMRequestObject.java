@@ -1,20 +1,18 @@
 package org.esgf.srm;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
-
 import javax.servlet.http.HttpServletRequest;
 
-//import gov.lbl.srm.client.exception.SRMClientException;
-//import gov.lbl.srm.client.main.*;
-//import gov.lbl.srm.client.util.*;
+import emailer.EmailNotifier;
 import gov.lbl.srm.StorageResourceManager.*;
 import gov.lbl.srm.client.wsdl.*;
 
@@ -56,8 +54,8 @@ public class SRMRequestObject {
 		if(this.getUrl()==null || this.getUrl().contentEquals("")){
 			System.out.println("Null URL");
 			url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
-					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli048/CCSM4/B_RCP45CN/lnd/DAY_AVG/2092-2101.tar#" +
-					"/tmp/work/gaoyang1/archive/B_RCP45CN_DAY/lnd/hist/2092-2101/B_RCP45CN_DAY.clm2.h1.2101-01-01-00000.nc";
+					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/" +
+					"ORNL/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
 		}
 		
 		this.toemail = request.getParameter("email");
@@ -276,6 +274,102 @@ public class SRMRequestObject {
 		return 0;
 	}*/
 
+
+	public void sendSubmissionConfirmation(){
+		String subject = "Your request has been submitted.";
+		String body = "Your request for file(s) in link\n"+ url +"\n has been submitted to SRM. It may take some time to retreive the" +
+         		" data. You will receive another email when the data is ready for download along with the download link. " +
+         		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
+         		"your request. \n\nThanks.";
+        sendEmail(subject, body);
+	}
+	
+	public void sendRequestCompletion(String turl){
+		String subject = "Your request has been completed successfuly.";
+		String body = "Your request for file(s) in link\n"+ url +"\n has been retreived successfully from SRM. You may download the " +
+				"file(s) from the following link: \n" + turl + "\n "+
+         		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
+         		"your request. \n\nThanks.";
+        sendEmail(subject, body);
+	}
+	
+	public void sendRequestFailed(String status){
+		String subject = "Your request could not be completed.";
+		String body = "Your request for file(s) in link\n"+ url +"\n could not be completed by SRM. The reason for the failure was " +
+				"cited as the error code \n" + status + ". Please try again later to check if the problem has been resolved." +
+						"\n\nThanks.";
+        sendEmail(subject, body);
+	}
+	
+	public void sendEmail(String subject, String body){
+		String to = this.toemail;
+		String host="smtp.ornl.gov";
+		String port="25";
+		String from= "";
+		String password = "";
+		String user = "e1g";
+		Properties prop = new Properties();
+		try {
+//            prop.load(new FileInputStream("./src/java/main/mail.properties"));
+            prop.load(new FileInputStream("./mail.properties"));
+
+            
+            host = prop.getProperty("mailHost");
+            port = prop.getProperty("mailPort");
+            from = prop.getProperty("mailFrom");
+            user = prop.getProperty("user");
+            
+            password = prop.getProperty("pass");
+            
+            List<String> argList = new ArrayList<String>();
+            
+            argList.add("-to");
+            argList.add(to);
+            System.out.println("email to: "+ to);
+            
+            argList.add("-from");
+            argList.add(from);
+            System.out.println("email from: "+ from);
+            
+            argList.add("-user");
+            argList.add(user);
+            System.out.println("user: "+ user);
+            
+            argList.add("-host");
+            argList.add(host);
+            System.out.println("host: "+ host);
+            
+            argList.add("-port");
+            argList.add(port);
+            System.out.println("port: "+ port);
+            
+            argList.add("-subject");
+            argList.add(subject);
+            
+            argList.add("-body");
+            argList.add(body);
+            
+            argList.add("-password");
+            argList.add(password);
+            System.out.println("password: "+ password);
+            
+            
+            String args[] = argList.toArray(new String[argList.size()]);
+            
+            for(int i=0; i < argList.size(); i++){
+            	args[i] = argList.get(i);
+            }
+            EmailNotifier submitted = new EmailNotifier(args);
+            
+            submitted.sendMail();
+            
+            
+	    } catch (Exception e) {
+	    	System.out.println("SRMRequestObject->sendSubmissionConfirmation: Something went wrong while reading the property file");
+	    	e.printStackTrace();
+	    }
+	}
+	
 	@SuppressWarnings("static-access")
 	public String runBeStManGetRequest() throws Exception{
 		String serverUrl = "";
@@ -299,7 +393,7 @@ public class SRMRequestObject {
 	    String[] surl = new String[1];
 	    surl[0] = url;
 	    
-	    String turl = "";
+	    String retStr = "";
 	    
 	    if(surl == null || surl.length == 0) {
 	       System.out.println("Please provide the surls");
@@ -333,13 +427,12 @@ public class SRMRequestObject {
 		    req.submit();
 		    
 		    //TODO: Send Email Notifying that the request has been submitted
-		    
+		    sendSubmissionConfirmation();
 		    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		    
 		    req.checkStatus();
 		    int sleepTime  = 10;
 		    SRMRequestStatus response = req.getStatus();
-		    System.out.println("Request Submitted; Status Checked");
 		    
 		    if(response != null){
 		    	while(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
@@ -348,7 +441,7 @@ public class SRMRequestObject {
 		        	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
 			        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
 			        
-			    	System.out.println("Next SRM check in "+ sleepTime + " secs");
+			    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
 		        	Thread.currentThread().sleep(sleepTime * 1000);
 		        	sleepTime*=2;
 		        	
@@ -362,7 +455,9 @@ public class SRMRequestObject {
 		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_QUEUED ||
 		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_INPROGRESS)){
 		        		System.out.println("SRM failed to extract file. Exiting.");
-		        		System.exit(1);
+		        		retStr = "<srm_error>" + response.getReturnStatus().getStatusCode().toString() + "</srm_error>";
+		        		sendRequestFailed(response.getReturnStatus().getStatusCode().toString());
+		        		return retStr;
 		        	}
 			    }
 		    	
@@ -381,7 +476,12 @@ public class SRMRequestObject {
     	                System.out.println("\nTransferSURL="+uri);
     	                
     	                
-    	                turl = uri.toString();	//Return value
+    	                //Notify by e-mail that request has been completed successfully.//
+    	                sendRequestCompletion(uri.toString());
+    	                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+    	        		
+    	                retStr = "<srm_url>"+uri.toString()+"</srm_url>";	//Return value
+    	                
     	             }
     	          }//end while
     	       }//end if
@@ -392,8 +492,9 @@ public class SRMRequestObject {
 	    }catch(Exception e) {
 	        e.printStackTrace();
 	    }
-		
-		return turl;
+	    
+	    
+		return retStr;
 	}
 	
 	/*public int runBeStManCopyScript() throws IOException{

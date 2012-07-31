@@ -25,19 +25,13 @@ public class SRMRequestController {
 		String response = "<srm_url>srm</srm_url>";
 		
 		SRMRequestObject obj = new SRMRequestObject(request);
-		
-//		obj.setOpenId(request.getParameter("openid"));
-//		obj.setProxyId(request.getParameter("proxyid"));
-//		obj.setProxyPwd(request.getParameter("pass"));
-//		obj.setUrl(request.getParameter("url"));
-		
-		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl());
+				
+		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
 		
 		
 		//TODO: Invoke BeStMan here
-		String turl = obj.runBeStManGetRequest();
+		response = obj.runBeStManGetRequest();
 		
-		String response1 = "<srm_url>" + turl + "</srm_url>";
 //		obj.runBeStManCopyRequest();
 //		obj.runBeStManCopyScript();
 		
@@ -65,19 +59,22 @@ public class SRMRequestController {
 
 		String openId = "openid1";
 		String url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
-					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli048/CCSM4/B_RCP45CN/lnd/DAY_AVG/2092-2101.tar#" +
-					"/tmp/work/gaoyang1/archive/B_RCP45CN_DAY/lnd/hist/2092-2101/B_RCP45CN_DAY.clm2.h1.2101-01-01-00000.nc";
+				"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL/CESM1/" +
+				"t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
 		String proxyId = "proxyid1";
 		String password = "password";
+		String toEmail = "ekhlas.sonu@gmail.com";
 
 		mockRequest.addParameter("openid", openId);
 		mockRequest.addParameter("url", url);
 	    mockRequest.addParameter("proxyid", proxyId);
 	    mockRequest.addParameter("pass", password);
+	    mockRequest.addParameter("email", toEmail);
 	    
 		SRMRequestController srm = new SRMRequestController();
 		try {
 			String response = srm.getSRMRequest(mockRequest);
+			System.out.println(response);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
