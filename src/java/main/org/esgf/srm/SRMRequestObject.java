@@ -1,9 +1,42 @@
+/** 
+ *
+ * BeStMan Copyright (c) 2007-2008, The Regents of the University of California,
+ * through Lawrence Berkeley National Laboratory (subject to receipt of any
+ * required approvals from the U.S. Dept. of Energy).  All rights reserved.
+ *
+ * If you have questions about your rights to use or distribute this software,
+ * please contact Berkeley Lab's Technology Transfer Department at TTD@lbl.gov.
+ *
+ * NOTICE.  This software was developed under partial funding from the
+ * U.S. Department of Energy.  As such, the U.S. Government has been
+ * granted for itself and others acting on its behalf a paid-up,
+ * nonexclusive, irrevocable, worldwide license in the Software to
+ * reproduce, prepare derivative works, and perform publicly and
+ * display publicly.  Beginning five (5) years after the date permission
+ * to assert copyright is obtained from the U.S. Department of Energy,
+ * and subject to any subsequent five (5) year renewals, the
+ * U.S. Government is granted for itself and others acting on its
+ * behalf a paid-up, nonexclusive, irrevocable, worldwide license in
+ * the Software to reproduce, prepare derivative works, distribute
+ * copies to the public, perform publicly and display publicly, and
+ * to permit others to do so.
+ *
+ * Email questions to SRM@LBL.GOV
+ * Scientific Data Management Research Group
+ * Lawrence Berkeley National Laboratory
+ *
+*/
+
+
 package org.esgf.srm;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +45,6 @@ import java.util.Properties;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
-import emailer.EmailNotifier;
 import gov.lbl.srm.StorageResourceManager.*;
 import gov.lbl.srm.client.wsdl.*;
 
@@ -132,8 +164,8 @@ public class SRMRequestObject {
 		String user = "e1g";
 		Properties prop = new Properties();
 		try {
-            prop.load(new FileInputStream("./src/java/main/mail.properties"));
-//            prop.load(new FileInputStream("./mail.properties"));
+//            prop.load(new FileInputStream("./src/java/main/mail.properties"));
+            prop.load(new FileInputStream("./mail.properties"));
 
             
             host = prop.getProperty("mailHost");
@@ -141,7 +173,7 @@ public class SRMRequestObject {
             from = prop.getProperty("mailFrom");
             user = prop.getProperty("user");
             
-            password = prop.getProperty("pass");
+            password = prop.getProperty("password");
             
             List<String> argList = new ArrayList<String>();
             
@@ -167,16 +199,18 @@ public class SRMRequestObject {
             
             argList.add("-subject");
             argList.add(subject);
+            System.out.println("subject: "+ subject);
             
             argList.add("-body");
             argList.add(body);
+            System.out.println("body: "+ body);
             
             argList.add("-password");
             argList.add(password);
-            System.out.println("password: "+ password);
             
             
             String args[] = argList.toArray(new String[argList.size()]);
+//            System.out.println("args[].length = "+args.length);
             
             for(int i=0; i < argList.size(); i++){
             	args[i] = argList.get(i);
@@ -194,7 +228,10 @@ public class SRMRequestObject {
 	
 	@SuppressWarnings("static-access")
 	public String runBeStManGetRequest() throws Exception{
-		String serverUrl = "";
+
+	    String retStr = "";
+	    
+	    String serverUrl = "";
 	    String uid="";
 	    String logPath="";
 	    String log4jlocation="";
@@ -211,15 +248,13 @@ public class SRMRequestObject {
 	       log4jlocation = ttemp;
 	    }
 	    
-	    
 	    String[] surl = new String[1];
 	    surl[0] = url;
 	    
-	    String retStr = "";
-	    
 	    if(surl == null || surl.length == 0) {
 	       System.out.println("Please provide the surls");
-	       System.exit(1);
+	       retStr = "<srm_error>Invalid or null SURLS</srm_error>";
+	       return retStr;
 	    }
 	    
 	    serverUrl = url.substring(0, url.indexOf("?"));
@@ -257,11 +292,10 @@ public class SRMRequestObject {
 		    SRMRequestStatus response = req.getStatus();
 		    
 		    if(response != null){
-		    	while(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
-		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED)){
-		    		response = req.getStatus();
-		        	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
-			        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
+		    	while(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS){
+		    		System.out.println("\nRequest.status="+response.getReturnStatus().getStatusCode());
+			        System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
 			        
 			    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
 		        	Thread.currentThread().sleep(sleepTime * 1000);
@@ -271,18 +305,26 @@ public class SRMRequestObject {
 		        		sleepTime=600;
 		        	}
 		        	
-		        	//If failed to extract then exit
+		        	//CHECK STATUS AGAIN
+		        	req.checkStatus();
+				    response = req.getStatus();
+		        	
+				    
+				    //If failed to extract then exit
 		        	if(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS || 
-		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_FILE_PINNED ||
-		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_QUEUED ||
-		        			response.getReturnStatus().getStatusCode() != TStatusCode.SRM_REQUEST_INPROGRESS)){
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED ||
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS)){
 		        		System.out.println("SRM failed to extract file. Exiting.");
 		        		retStr = "<srm_error>" + response.getReturnStatus().getStatusCode().toString() + "</srm_error>";
 		        		sendRequestFailed(response.getReturnStatus().getStatusCode().toString());
+		        		cc.disconnect();
 		        		return retStr;
 		        	}
 			    }
-		    	
+		    	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
+		        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
+		        
 		    	if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
     	          response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED) {
     	          HashMap map = response.getFileStatuses();
@@ -303,7 +345,7 @@ public class SRMRequestObject {
     	                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     	        		
     	                retStr = "<srm_url>"+uri.toString()+"</srm_url>";	//Return value
-    	                
+    	                cc.disconnect();
     	             }
     	          }//end while
     	       }//end if
@@ -319,7 +361,262 @@ public class SRMRequestObject {
 		return retStr;
 	}
 	
+	public String runBeStManLsRequest() throws Exception{
+
+	    String retStr = "";
+	    
+	    String serverUrl = "";
+	    String uid="";
+	    String logPath="";
+	    String log4jlocation="";
+	    String storageInfo="";
+	    String fileType="volatile";
+	    String retentionPolicy="replica";
+	    String accessLatency="online";
+	    boolean debug = false;
+	    boolean delegationNeeded=false;
+	    
+	    String ttemp = System.getProperty("log4j.configuration");
+	    System.out.println("ttemp = "+ ttemp);
+	    if(ttemp != null && !ttemp.equals("")) {
+	       log4jlocation = ttemp;
+	    }
+	    
+	    String[] surl = new String[1];
+	    surl[0] = url;
+	    
+	    if(surl == null || surl.length == 0) {
+	       System.out.println("Please provide the surls");
+	       retStr = "<srm_error>Invalid or null SURLS</srm_error>";
+	       return retStr;
+	    }
+	    
+	    serverUrl = url.substring(0, url.indexOf("?"));
+	    
+	    System.out.println("Server URL = "+serverUrl);
+	    System.out.println("SURL = "+surl[0]);
+	    
+	    try{
+	    	if(!storageInfo.equals("")) {
+		       delegationNeeded=true;
+		    }
+		    SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
+		    
+		    System.out.println("CC Initialized");
+		    cc.connect(serverUrl);
+		    System.out.println("Connection Established");
+		    cc.ping(uid);
+		    SRMRequest req = new SRMRequest();
+		    req.setSRMServer(cc);
+		    req.setAuthID(uid);
+		    req.addFiles(surl, null,null);
+		    req.setFileStorageType(fileType);
+		    req.setRetentionPolicy(retentionPolicy);
+		    req.setAccessLatency(accessLatency);
+		    req.setStorageSystemInfo(storageInfo);
+		      
+		    req.srmLs();
+	        req.checkStatus();
+	        
+	        int sleepTime  = 10;
+		    SRMRequestStatus response = req.getStatus();
+		    
+		    if(response != null){
+		    	while(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS){
+		    		System.out.println("\nRequest.status="+response.getReturnStatus().getStatusCode());
+			        System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
+			        
+			    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
+		        	Thread.currentThread().sleep(sleepTime * 1000);
+		        	sleepTime*=2;
+		        	
+		        	if(sleepTime>=600){
+		        		sleepTime=600;
+		        	}
+		        	
+		        	//CHECK STATUS AGAIN
+		        	req.checkStatus();
+				    response = req.getStatus();
+		        	
+				    
+				    //If failed to extract then exit
+		        	if(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS || 
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED ||
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS)){
+		        		System.out.println("SRM failed to extract file. Exiting.");
+		        		retStr = "<srm_error>" + response.getReturnStatus().getStatusCode().toString() + "</srm_error>";
+		        		cc.disconnect();
+		        		return retStr;
+		        	}
+			    }
+		    	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
+		        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
+		        
+		        if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS) {
+		        	System.out.println("SRM-CLIENT: ............................");
+		            System.out.println("SRM-CLIENT: ....Printing Results..........");
+		            System.out.println("TimeStamp="+response.getTimeStamp());
+		            System.out.println
+		    			("RequestToken="+response.getRequestToken());
+		            TReturnStatus rStatus = response.getReturnStatus();
+		            if(rStatus != null) {
+		              TStatusCode code = rStatus.getStatusCode();
+		              System.out.println("Status="+code);
+		              System.out.println("Explanation="+rStatus.getExplanation());
+		            }
+		            HashMap pathDetails = response.getPathDetails();
+		            Collection pathDetailsCollection = pathDetails.values();
+		            Object[] obj = pathDetailsCollection.toArray();
+		            System.out.println("LS output");
+		            for(int i = 0; i < obj.length; i++) {
+		              PathDetail pDetails = (PathDetail) obj[i];
+		              printMetaDataDetails("\t\t",pDetails);
+		            }//end for(pathDetails.size() > 0)
+		          
+		          cc.disconnect();
+		        }
+		        
+		    }
+		    
+	    }catch(Exception e) {
+	        e.printStackTrace();
+	    }
+	    
+		return retStr;
+	}
 	
+private static void printMetaDataDetails(String prefix, PathDetail pDetails) 
+		throws Exception {
+     if(pDetails.getPath() != null) {
+       System.out.println(prefix+"SURL="+ pDetails.getPath());
+     }
+     if(pDetails.getSize() != null) {
+       System.out.println(prefix+"Bytes="+ pDetails.getSize());
+     }
+     if(pDetails.getFileType()  != null) {
+       System.out.println(prefix+"FileType="+pDetails.getFileType());
+     }
+     if(pDetails.getFileStorageType() != null) {
+       System.out.println(prefix+"StorageType="+pDetails.getFileStorageType());
+     }
+     if(pDetails.getStatus() != null) {
+       TReturnStatus rStatus = pDetails.getStatus();
+       TStatusCode code = rStatus.getStatusCode();
+       System.out.println(prefix+"Status="+ code);
+       if(rStatus.getExplanation () != null) {
+         System.out.println(prefix+"Explanation="+ rStatus.getExplanation());
+       }
+     }
+     if(pDetails.getCreatedAtTime() != null) {
+       System.out.println(prefix+"CreatedAtTime");
+       Calendar cal = pDetails.getCreatedAtTime();
+       Date dd = cal.getTime();
+       int year = dd.getYear()+1900;
+       int month = dd.getMonth();
+       int day = dd.getDate();
+       int hour = dd.getHours();
+       int minute = dd.getMinutes();
+       int second = dd.getSeconds();
+       System.out.println(prefix+"\tYear="+ year);
+       System.out.println(prefix+"\tMonth="+ month);
+       System.out.println(prefix+"\tDay="+ day);
+       System.out.println(prefix+"\tHour="+ hour);
+       System.out.println(prefix+"\tMinute="+ minute);
+       System.out.println(prefix+"\tSecond="+ second);
+     }
+     if(pDetails.getLastModificationTime() != null) {
+       System.out.println(prefix+"LastModificationTime");
+       Calendar cal = pDetails.getLastModificationTime();
+       Date dd = cal.getTime();
+       int year = dd.getYear()+1900;
+       int month = dd.getMonth();
+       int day = dd.getDate();
+       int hour = dd.getHours();
+       int minute = dd.getMinutes();
+       int second = dd.getSeconds();
+       System.out.println(prefix+"\tYear="+ year);
+       System.out.println(prefix+"\tMonth="+ month);
+       System.out.println(prefix+"\tDay="+ day);
+       System.out.println(prefix+"\tHour="+ hour);
+       System.out.println(prefix+"\tMinute="+ minute);
+       System.out.println(prefix+"\tSecond="+ second);
+     }
+     if(pDetails.getRetentionPolicyInfo() != null) {
+       TRetentionPolicy retentionPolicy =
+         pDetails.getRetentionPolicyInfo().getRetentionPolicy();
+       TAccessLatency accessLatency =
+         pDetails.getRetentionPolicyInfo().getAccessLatency();
+       if(retentionPolicy != null && retentionPolicy.getValue() != null) {
+          System.out.println(prefix+"RetentionPolicy="+ 
+				retentionPolicy.getValue());
+        }
+        if(accessLatency != null && accessLatency.getValue() != null) {
+          System.out.println(prefix+"AccessLatency="+ accessLatency.getValue());
+        }
+     }
+     if(pDetails.getFileLocality() != null) {
+       System.out.println(prefix+"FileLocality="+
+          pDetails.getFileLocality().getValue());
+     }
+     if(pDetails.getArrayOfSpaceTokens() != null) {
+       ArrayOfString arrayOfString = pDetails.getArrayOfSpaceTokens();
+       String[] sss = arrayOfString.getStringArray();
+       for(int j = 0; j < sss.length; j++) {
+         System.out.println(prefix+"SpaceTokens["+j+"]="+sss[j]);
+       }
+     }
+     if(pDetails.getLifeTimeAssigned()  != null) {
+       Integer ii = pDetails.getLifeTimeAssigned();
+       System.out.println(prefix+"LifeTimeAssigned="+ii.intValue());
+     }
+     if(pDetails.getLifeTimeLeft()  != null) {
+       Integer ii = pDetails.getLifeTimeLeft();
+       System.out.println(prefix+"LifeTimeLeft="+ii.intValue());
+     }
+     if(pDetails.getCheckSumType()  != null) {
+       System.out.println(prefix+"CheckSumType="+pDetails.getCheckSumType());
+     }
+     if(pDetails.getCheckSumValue()  != null) {
+       System.out.println(prefix+"CheckSumValue="+pDetails.getCheckSumValue());
+     }
+     if(pDetails.getOwnerPermission()  != null) {
+       TUserPermission perm = pDetails.getOwnerPermission();
+       System.out.println 
+        (prefix+"OwnerPermission.getUserID="+perm.getUserID());
+       TPermissionMode mode = perm.getMode();
+       if(mode != null) {
+         System.out.println
+          (prefix+"OwnerPermission.getMode="+mode.toString());
+       }
+     }
+     if(pDetails.getGroupPermission()  != null) {
+       TGroupPermission perm = pDetails.getGroupPermission();
+       System.out.println
+        (prefix+"GroupPermission.getUserID="+perm.getGroupID());
+       TPermissionMode mode = perm.getMode();
+       if(mode != null) {
+        System.out.println
+        (prefix+"GroupPermission.getMode="+mode.toString());
+       }
+     }
+     if(pDetails.getOtherPermission()  != null) {
+       TPermissionMode perm = pDetails.getOtherPermission();
+       if(perm != null) {
+         System.out.println
+          (prefix+"OtherPermission.getMode="+perm.toString());
+      }
+     }
+     if(pDetails.getSubPath() != null) {
+        PathDetail[] mp = pDetails.getSubPath();
+        for(int i = 0; i < mp.length; i++) {
+          printMetaDataDetails(prefix+"\t\t\t",mp[i]);
+        }
+     }
+   }
+
+
 	//TODO: Remove Later:
 	
 	public static void main(String[] args) throws IOException{

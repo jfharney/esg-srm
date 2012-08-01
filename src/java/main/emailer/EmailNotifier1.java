@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.io.*;
 
 
-public class EmailNotifier {
+public class EmailNotifier1 {
 	private String from;
 	private String user;
 	private String to;
@@ -25,10 +25,8 @@ public class EmailNotifier {
 	private String port;
 	private String password;
 	
-	private String srmRequestLink;	//Identifier for end user. Link for user to identify which request mail is about
-	private String downloadLink;
 	
-	public EmailNotifier(String[] args){
+	public EmailNotifier1(String[] args){
 		from = "sonues@ornl.gov";
 		user = "e1g";
 		to = "";
