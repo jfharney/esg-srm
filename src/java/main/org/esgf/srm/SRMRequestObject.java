@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
+
 import javax.servlet.http.HttpServletRequest;
 
 import gov.lbl.srm.StorageResourceManager.*;
@@ -321,14 +323,20 @@ public class SRMRequestObject {
 //	    BufferedWriter outLogFile = new BufferedWriter(logFile);
 	    
 	    /**
-	     * Currently we have implemented get for only one url.
-	     * May be used for multiple urls that would be added 
-	     * to the following array. 
+	     * Changed this portion to handle multiple urls
 	     */
-	    String[] surl = new String[1];
-	    surl[0] = url;
+	    StringTokenizer st = new StringTokenizer(url,";");
 	    
-	    if(surl[0] == null || surl[0] == "" || url.indexOf("?") < 0) {
+	    String[] surl = new String[st.countTokens()];
+	    //String[] surl = new String[1];
+	    int ctr=0;
+	    while(st.hasMoreTokens()){
+	    	surl[ctr] = st.nextToken();
+	    	ctr++;
+	    }
+	    //surl[0] = url;
+	    
+	    if(surl==null || surl.length==0 || surl[0] == null || surl[0] == "" || url.indexOf("?") < 0) {
 	       System.out.println("Please provide the correct surl");
 	       retStr = "<srm_error>Invalid or null SURLS</srm_error>";
 //	       outLogFile.write(retStr+"\n");
@@ -336,15 +344,20 @@ public class SRMRequestObject {
 	    }
 	    
 	    /**
-	     * The server of the url is the part of SURL before the parameter.
+	     * The server of the url is the part of the first SURL 
+	     * that appears before the ? sign.
 	     * 
 	     */
 	    serverUrl = url.substring(0, url.indexOf("?"));
 	    
 	    System.out.println("Server URL = "+serverUrl);
 //	    outLogFile.write("Server URL = "+serverUrl+"\n");
-	    System.out.println("SURL = "+surl[0]);
-//	    outLogFile.write("SURL = "+surl[0]+"\n");
+//	    outLogFile.write("SURL = "+"\n");
+	    System.out.println("SURL = ");
+	    for (int i=0; i<surl.length; i++){
+	    	System.out.println(surl[i]);
+//		    outLogFile.write(surl[i]+"\n");
+	    }
 	    
 	    try{
 	    	if(!storageInfo.equals("")) {
@@ -419,6 +432,7 @@ public class SRMRequestObject {
 		        
 		    	if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
     	          response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED) {
+		    		retStr="";
     	          HashMap map = response.getFileStatuses();
     	          Set set = map.entrySet();
     	          Iterator i = set.iterator();
@@ -435,14 +449,15 @@ public class SRMRequestObject {
     	                System.out.println("Wait Time:"+fileStatus.getFileLifeTime());
      	                
     	                
-    	                //Notify by e-mail that request has been completed successfully.//
-    	                sendRequestCompletion(uri.toString());
-    	                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    	        		
-    	                retStr = uri.toString();	//Return value
+    	               
+    	                retStr += (uri.toString()+";");	//Return value
     	                cc.disconnect();
     	             }
     	          }//end while
+    	          //Notify by e-mail that request has been completed successfully.//
+	              sendRequestCompletion(retStr);
+	              //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+	        		
     	       }//end if
 		    	
 		    }
@@ -456,7 +471,7 @@ public class SRMRequestObject {
 	    
 	    System.out.println("File on cache:" + serverFileLocation);
 	    
-		return ("<srm_url>"+retStr)+"</srm_url>";
+		return ("<srm_url>"+retStr+"</srm_url>");
 	}
 	
 	

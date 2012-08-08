@@ -102,8 +102,90 @@ public class EmailNotifier {
 	}
 	
 	
+	public String getFrom() {
+		return from;
+	}
+
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+
+	public String getUser() {
+		return user;
+	}
+
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+
+	public String getTo() {
+		return to;
+	}
+
+
+	public void setTo(String to) {
+		this.to = to;
+	}
+
+
+	public String getSubject() {
+		return subject;
+	}
+
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+
+	public String getBody() {
+		return body;
+	}
+
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+
+
+	public String getHost() {
+		return host;
+	}
+
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+
+	public String getPort() {
+		return port;
+	}
+
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
 	/**
 	 * Method to send email
+	 * 
+	 * @throws IOException
 	 */
 	
 	public void sendMail() throws IOException {
@@ -153,7 +235,7 @@ public class EmailNotifier {
             
             message.saveChanges();
             Transport transport = session.getTransport("smtp");
-            System.out.println("Connecting...");
+            System.out.println("Connecting to mail server...");
             transport.connect(host, user, password);
             System.out.println("Connection established... Sending email...");
             transport.sendMessage(message, message.getAllRecipients());

@@ -63,7 +63,10 @@ public class SRMRequestController {
 		String openId = "openid1";
 		String url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
 				"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL/CESM1" +
-				"/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1979-01.nc";
+				"/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1979-01.nc;" +
+				"srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
+				"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL" +
+				"/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-12.nc";
 		String proxyId = "proxyid1";
 		String password = "password";
 		String toEmail = "ekhlas.sonu@gmail.com";
