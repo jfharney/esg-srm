@@ -50,6 +50,8 @@
     <dependency org="javax.servlet" name="servlet-api" rev="2.5" transitive="false" conf="compile->default" />
     <dependency org="javax.servlet" name="jstl" rev="1.2" conf="base->default" />
     
+    <dependency org="javax.mail" name="mail" rev="1.4.3" transitive="false" conf="base->default" />
+    
 <!--
     <dependency org="org.springframework.security" name="spring-security-core" rev="${spring.version}" conf="base->default" />
     <dependency org="org.springframework.security" name="spring-security-config" rev="${spring.version}" conf="base->default" />
