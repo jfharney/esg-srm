@@ -467,7 +467,16 @@ public class SRMRequestObject {
 	        e.printStackTrace();
 	    }
 	    
-	    String serverFileLocation = retStr.substring(retStr.indexOf("/lusture"));
+	    StringTokenizer st2 = new StringTokenizer(retStr,";");
+	    
+	    ArrayList<String> serverFileLocation = new ArrayList<String>();
+	    
+	    while(st2.hasMoreTokens()){
+	    	String tmpToken = st2.nextToken();
+	    	if(tmpToken != null && tmpToken!=""){
+	    		serverFileLocation.add(tmpToken.substring(retStr.indexOf("/lusture")));
+	    	}
+	    }
 	    
 	    System.out.println("File on cache:" + serverFileLocation);
 	    
