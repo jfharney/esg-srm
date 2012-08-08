@@ -27,11 +27,19 @@
  *
 */
 
+/**
+ * @author      Ekhlas Sonu <esonu@uga.edu>
+ * @version     1.0                                    
+ * @since       2012-08-07          
+ */
 
 package org.esgf.srm;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,13 +58,30 @@ import gov.lbl.srm.client.wsdl.*;
 
 import org.apache.log4j.PropertyConfigurator;
 
+/**
+ * @author      Ekhlas Sonu <esonu@uga.edu>
+ * @version     1.0                                    
+ * @since       2012-08-07          
+ */
 
 public class SRMRequestObject {
 	private String openId;
 	private String proxyId;
 	private String proxyPwd;
 	private String url;
-	private String toemail;
+	private String mailTo;
+	
+	/**
+	 * Constructor                 
+	 *
+	 * Constructor that  takes the http request 
+	 *  and extracts the required parameters from it:
+	 *  URL, OpenId, ProxyId, Proxy Password, and 
+	 *  users email id
+	 *
+	 * @param  request The HttpServletRequest object containing parameters 
+	 * 
+	 */
 	
 	public SRMRequestObject(HttpServletRequest request){
 		this.openId = request.getParameter("openid");
@@ -90,7 +115,7 @@ public class SRMRequestObject {
 					"ORNL/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
 		}
 		
-		this.toemail = request.getParameter("email");
+		this.mailTo = request.getParameter("email");
 		//If null or empty url
 		if(this.getUrl()==null || this.getUrl().contentEquals("")){
 			System.out.println("NULL to email id");
@@ -122,13 +147,16 @@ public class SRMRequestObject {
 		this.url = url;
 	}
 	public String getToemail() {
-		return toemail;
+		return mailTo;
 	}
 	public void setToemail(String toemail) {
-		this.toemail = toemail;
+		this.mailTo = toemail;
 	}
 
-
+	/**
+	 * Send confirmation of submission of SRM get request                
+	 *
+	 */
 	public void sendSubmissionConfirmation(){
 		String subject = "Your request has been submitted.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been submitted to SRM. It may take some time to retreive the" +
@@ -138,6 +166,10 @@ public class SRMRequestObject {
         sendEmail(subject, body);
 	}
 	
+	/**
+	 * Send confirmation after the request has been executed               
+	 *
+	 */
 	public void sendRequestCompletion(String turl){
 		String subject = "Your request has been completed successfuly.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been retreived successfully from SRM. You may download the " +
@@ -147,6 +179,11 @@ public class SRMRequestObject {
         sendEmail(subject, body);
 	}
 	
+	
+	/**
+	 * Send notification if the request failed execute for any reason              
+	 *
+	 */
 	public void sendRequestFailed(String status){
 		String subject = "Your request could not be completed.";
 		String body = "Your request for file(s) in link\n"+ url +"\n could not be completed by SRM. The reason for the failure was " +
@@ -155,8 +192,18 @@ public class SRMRequestObject {
         sendEmail(subject, body);
 	}
 	
+	/**
+	 * Send email
+	 * 
+	 * Send email to the address in variable mailTo. 
+	 * Reads file mail.properties to extract mailing options
+	 * 
+	 * @param subject subject of the email
+	 * @param body the body of the email
+	 */
+	
 	public void sendEmail(String subject, String body){
-		String to = this.toemail;
+		String to = this.mailTo;
 		String host="smtp.ornl.gov";
 		String port="25";
 		String from= "";
@@ -226,14 +273,32 @@ public class SRMRequestObject {
 	    }
 	}
 	
+	
+	/**
+	 * Run BeStMan GET request to extract the file at url from SRM server
+	 *<p>
+	 *This method has been adopted from SRMGetTest.java file in the BeStMan api 
+	 *@see https://codeforge.lbl.gov/frs/download.php/178/bestman2.java.api-2.0.0.tar.gz
+	 *Multiple source url (surl) can be passed with the get request in the array. Again see 
+	 *original file. 
+	 *
+	 *@return retStr url of the retrieved file in the cache or failure message
+	 */
+	
 	@SuppressWarnings("static-access")
 	public String runBeStManGetRequest() throws Exception{
 
-	    String retStr = "";
+		/**
+		 * The return value. Initially assume that connection to server failed
+		 */
+		String retStr = "<srm_error>SRMInitializationError</srm_error>";
 	    
+		/**
+		 * The following variables and subsequent code is adopted from the BeStMan api
+		 */
 	    String serverUrl = "";
 	    String uid="";
-	    String logPath="";
+	    String logPath="/tmp/esg-srm.log";
 	    String log4jlocation="";
 	    String storageInfo="";
 	    String fileType="volatile";
@@ -242,25 +307,44 @@ public class SRMRequestObject {
 	    boolean debug = false;
 	    boolean delegationNeeded=false;
 	    
+	    /**
+	     * This part is necessary but currently throws an exception. 
+	     * The exception is ignored.
+	     */
 	    String ttemp = System.getProperty("log4j.configuration");
 	    System.out.println("ttemp = "+ ttemp);
 	    if(ttemp != null && !ttemp.equals("")) {
 	       log4jlocation = ttemp;
 	    }
 	    
+//	    FileWriter logFile = new FileWriter("/tmp/esg-srm-log.out", true);
+//	    BufferedWriter outLogFile = new BufferedWriter(logFile);
+	    
+	    /**
+	     * Currently we have implemented get for only one url.
+	     * May be used for multiple urls that would be added 
+	     * to the following array. 
+	     */
 	    String[] surl = new String[1];
 	    surl[0] = url;
 	    
-	    if(surl == null || surl.length == 0) {
-	       System.out.println("Please provide the surls");
+	    if(surl[0] == null || surl[0] == "" || url.indexOf("?") < 0) {
+	       System.out.println("Please provide the correct surl");
 	       retStr = "<srm_error>Invalid or null SURLS</srm_error>";
+//	       outLogFile.write(retStr+"\n");
 	       return retStr;
 	    }
 	    
+	    /**
+	     * The server of the url is the part of SURL before the parameter.
+	     * 
+	     */
 	    serverUrl = url.substring(0, url.indexOf("?"));
 	    
 	    System.out.println("Server URL = "+serverUrl);
+//	    outLogFile.write("Server URL = "+serverUrl+"\n");
 	    System.out.println("SURL = "+surl[0]);
+//	    outLogFile.write("SURL = "+surl[0]+"\n");
 	    
 	    try{
 	    	if(!storageInfo.equals("")) {
@@ -269,8 +353,10 @@ public class SRMRequestObject {
 		    SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
 		    
 		    System.out.println("CC Initialized");
+//		    outLogFile.write("CC Initialized"+"\n");
 		    cc.connect(serverUrl);
 		    System.out.println("Connection Established");
+//		    outLogFile.write("Connection Established"+"\n");
 		    cc.ping(uid);
 		    SRMRequest req = new SRMRequest();
 		    req.setSRMServer(cc);
@@ -282,8 +368,9 @@ public class SRMRequestObject {
 		    req.setRetentionPolicy(retentionPolicy);
 		    req.setAccessLatency(accessLatency);
 		    req.submit();
+		   
 		    
-		    //TODO: Send Email Notifying that the request has been submitted
+		    //Send Email Notifying that the request has been submitted
 		    sendSubmissionConfirmation();
 		    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		    
@@ -295,9 +382,12 @@ public class SRMRequestObject {
 		    	while(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
 		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS){
 		    		System.out.println("\nRequest.status="+response.getReturnStatus().getStatusCode());
+//		    		outLogFile.write("\nRequest.status="+response.getReturnStatus().getStatusCode()+"\n");
 			        System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
+//			        outLogFile.write("request.explanation="+response.getReturnStatus().getExplanation()+"\n");
 			        
 			    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
+//			    	outLogFile.write("SRM-CLIENT: Next status call in "+ sleepTime + " secs"+"\n");
 		        	Thread.currentThread().sleep(sleepTime * 1000);
 		        	sleepTime*=2;
 		        	
@@ -321,6 +411,8 @@ public class SRMRequestObject {
 		        		cc.disconnect();
 		        		return retStr;
 		        	}
+		        	
+		        	
 			    }
 		    	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
 		        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
@@ -338,13 +430,16 @@ public class SRMRequestObject {
     	                FileStatus fileStatus = (FileStatus) value;
     	                org.apache.axis.types.URI uri = fileStatus.getTransferSURL();
     	                System.out.println("\nTransferSURL="+uri);
-    	                
+    	                org.apache.axis.types.URI uri2 = fileStatus.getTURL();
+    	                System.out.println("\nTURL="+uri2);
+    	                System.out.println("Wait Time:"+fileStatus.getFileLifeTime());
+     	                
     	                
     	                //Notify by e-mail that request has been completed successfully.//
     	                sendRequestCompletion(uri.toString());
     	                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     	        		
-    	                retStr = "<srm_url>"+uri.toString()+"</srm_url>";	//Return value
+    	                retStr = uri.toString();	//Return value
     	                cc.disconnect();
     	             }
     	          }//end while
@@ -357,10 +452,28 @@ public class SRMRequestObject {
 	        e.printStackTrace();
 	    }
 	    
+	    String serverFileLocation = retStr.substring(retStr.indexOf("/lusture"));
 	    
-		return retStr;
+	    System.out.println("File on cache:" + serverFileLocation);
+	    
+		return ("<srm_url>"+retStr)+"</srm_url>";
 	}
 	
+	
+	/**
+	 * Run BeStMan Ls request 
+	 *<p>
+	 *This method has been adopted from SRMDirTest.java file in the BeStMan api 
+	 *@see https://codeforge.lbl.gov/frs/download.php/178/bestman2.java.api-2.0.0.tar.gz
+	 *The plan is to use this code to generate a list of files and then use the list to 
+	 *extract respective files.
+	 *<p>
+	 *Need to decide what needs to be done with the return value of the SRMLs request.
+	 *
+	 *@return retStr Currently doen't contain any information except if error occurs
+	 */
+	
+	@SuppressWarnings("static-access")
 	public String runBeStManLsRequest() throws Exception{
 
 	    String retStr = "";
@@ -486,8 +599,13 @@ public class SRMRequestObject {
 	    
 		return retStr;
 	}
+
+	/**
+	 * This was a part of SRMDirTest.java file in BeStMan api. 
+	 * @see https://codeforge.lbl.gov/frs/download.php/178/bestman2.java.api-2.0.0.tar.gz
+	 */
 	
-private static void printMetaDataDetails(String prefix, PathDetail pDetails) 
+	private static void printMetaDataDetails(String prefix, PathDetail pDetails) 
 		throws Exception {
      if(pDetails.getPath() != null) {
        System.out.println(prefix+"SURL="+ pDetails.getPath());
@@ -615,34 +733,4 @@ private static void printMetaDataDetails(String prefix, PathDetail pDetails)
         }
      }
    }
-
-
-	//TODO: Remove Later:
-	
-	public static void main(String[] args) throws IOException{
-		Properties props = System.getProperties();
-		String userTemp = props.getProperty("user.name");
-		
-		System.out.println(userTemp);
-		
-		System.out.println("Check ProcessBuilder:");
-		
-		ProcessBuilder pb = new ProcessBuilder("mkdir", "testdir");
-		Map<String, String> env = pb.environment();
-		
-		System.out.println("JAVA_HOME = "+env.get("JAVA_HOME"));
-		
-//		env.put("JAVA_HOME","/usr");
-//		System.out.println("JAVA_HOME = "+env.get("JAVA_HOME"));
-//		
-//		env.put("VAR1", "myValue");
-//		env.remove("OTHERVAR");
-//		env.put("VAR2", env.get("VAR1") + "suffix");
-		pb.directory(new File("/Users/e1g/Desktop/"));
-		Process p = pb.start();
-		
-//		System.out.println("Check System.getenv():");
-//		System.out.println(System.getenv("PATH"));
-	}
-
 }

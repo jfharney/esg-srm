@@ -168,12 +168,44 @@ public class SRMDirTest {
       if(!rmFile) {
         req.srmLs();
         req.checkStatus();
+        
       }
       else {
         req.srmRm();
       }
 
+      int sleepTime  = 10;
+	  
       SRMRequestStatus response = req.getStatus();
+      while(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+              response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS){
+    	  System.out.println("\nRequest.status="+response.getReturnStatus().getStatusCode());
+	        System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
+	        
+	    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
+      	Thread.currentThread().sleep(sleepTime * 1000);
+      	sleepTime*=2;
+      	
+      	if(sleepTime>=600){
+      		sleepTime=600;
+      	}
+      	
+      	//CHECK STATUS AGAIN
+      	req.checkStatus();
+		response = req.getStatus();
+      	
+		//If failed to extract then exit
+    	if(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS || 
+    			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED ||
+    			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
+    			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS)){
+    		System.out.println("SRM failed to extract file. Exiting.");
+    		cc.disconnect();
+    		System.exit(-1);
+    	}
+      }
+      
+      
       //req.printResults();
       if(response != null) {
         System.out.println("SRM-CLIENT: ............................");

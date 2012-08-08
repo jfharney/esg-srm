@@ -14,6 +14,11 @@ import java.util.Date;
 import java.util.Properties;
 import java.io.*;
 
+/**
+ * @author      Ekhlas Sonu <esonu@uga.edu>
+ * @version     1.0                                    
+ * @since       2012-08-07          
+ */
 
 public class EmailNotifier {
 	private String from;
@@ -25,10 +30,25 @@ public class EmailNotifier {
 	private String port;
 	private String password;
 	
+	/**
+	 * Constructor    
+	 *
+	 * Constructor of the class. Initialize mailing options.
+	 * 
+	 * @param args Array containing options 
+	 * -to <receiver email id>
+	 * -from <sender email id>
+	 * -user <sender user id> for authentication
+	 * -subject <subject text>
+	 * -body <body text>
+	 * -host <email smtp host>
+	 * -port <smtp port> usually 25
+	 * -password <user password> for authentication
+	 */
 	
 	public EmailNotifier(String[] args){
-		from = "sonues@ornl.gov";
-		user = "e1g";
+		from = "";
+		user = "";
 		to = "";
 		subject = "Request Status";
 		body = "Your request has been submitted";
@@ -38,6 +58,20 @@ public class EmailNotifier {
 		parseArguments(args);
 	}
 	
+	
+	/**
+	 * Parse arguments to constructor  
+	 *
+	 * @param args Array containing options 
+	 * -to <receiver email id>
+	 * -from <sender email id>
+	 * -user <sender user id> for authentication
+	 * -subject <subject text>
+	 * -body <body text>
+	 * -host <email smtp host>
+	 * -port <smtp port> usually 25
+	 * -password <user password> for authentication
+	 */
 	public void parseArguments(String[] args){
 		for(int i=0; i < args.length; i++){
 			if(args[i].equalsIgnoreCase("-to") && i+1 < args.length){
@@ -66,6 +100,11 @@ public class EmailNotifier {
 			}
 		}
 	}
+	
+	
+	/**
+	 * Method to send email
+	 */
 	
 	public void sendMail() throws IOException {
  
@@ -127,15 +166,7 @@ public class EmailNotifier {
         }
     }
 	
-	public static void main(String[] args) throws Exception{
-//		String[] arg2 = {"-to", "sonues@ornl.gov", "-from", "sonues@ornl.gov", "-user", "e1g", "-subject", "Test...", 
-//				"-body", "Testing EmailNotifier.java", "-host", "smtp.ornl.gov", "-port", "25", "-password", "raz108su"};
-		String[] arg2 = {"-to", "sonues@ornl.gov", "-from", "ekhlas.sonu@gmail.com", "-user", "ekhlas.sonu", "-subject", "Test...", 
-				"-body", "Testing EmailNotifier.java", "-host", "smtp.gmail.com", "-port", "587", "-password", "<es2thegreat>"};
-		
-		EmailNotifier en = new EmailNotifier(arg2);
-		en.sendMail();
-	}
+	
 }
 
 

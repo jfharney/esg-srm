@@ -29,15 +29,9 @@ public class SRMRequestController {
 		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
 		
 		
-		//TODO: Invoke BeStMan here
+		//Invoke BeStMan here
 		response = obj.runBeStManGetRequest();
-		
-//		obj.runBeStManCopyRequest();
-//		obj.runBeStManCopyScript();
-		
-//		obj.runBeStManLSRequest();
-//		obj.runBeStManLSScript();
-		
+				
 		return response;
 	}
 	
@@ -54,13 +48,22 @@ public class SRMRequestController {
 		
 	}
 	
+	/**
+	 * For testing purpose only      
+	 *
+	 * A dummy main program to be used for testing purpose
+	 *     
+	 */
+	
 	public static void main(String args[]){
 		final MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 
+		//Set dummy parameter for testing purpose.
+		
 		String openId = "openid1";
 		String url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
-				"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL/CESM1/" +
-				"t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
+				"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL/CESM1" +
+				"/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1979-01.nc";
 		String proxyId = "proxyid1";
 		String password = "password";
 		String toEmail = "ekhlas.sonu@gmail.com";
