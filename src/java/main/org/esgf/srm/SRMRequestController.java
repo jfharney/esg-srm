@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import dw.spring3.rest.bean.Employee;
 
 @Controller
 public class SRMRequestController {
@@ -28,6 +27,26 @@ public class SRMRequestController {
 				
 		System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
 		
+//		if(obj.getOpenId()==null||obj.getOpenId()==""){
+//			response = "<srm_error>NullOpenId</srm_error>";
+//			return response;
+//		}
+//		
+//		if(obj.getProxyId()==null||obj.getProxyId()==""){
+//			response = "<srm_error>NullProxyId</srm_error>";
+//			return response;
+//		}
+//		
+//		
+//		if(obj.getProxyPwd()==null||obj.getProxyPwd()==""){
+//			response = "<srm_error>NullProxyPwd</srm_error>";
+//			return response;
+//		}
+//		
+//		if(obj.getToemail()==null||obj.getToemail()==""){
+//			response = "<srm_error>NullEmailAdress</srm_error>";
+//			return response;
+//		}
 		
 		//Invoke BeStMan here
 		response = obj.runBeStManGetRequest();
@@ -69,7 +88,7 @@ public class SRMRequestController {
 				"/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-12.nc";
 		String proxyId = "proxyid1";
 		String password = "password";
-		String toEmail = "ekhlas.sonu@gmail.com";
+		String toEmail = "";
 
 		mockRequest.addParameter("openid", openId);
 		mockRequest.addParameter("url", url);

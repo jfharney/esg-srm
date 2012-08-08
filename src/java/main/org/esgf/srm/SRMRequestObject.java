@@ -73,6 +73,10 @@ public class SRMRequestObject {
 	private String url;
 	private String mailTo;
 	
+	private static String mailPropFile = "./mail.properties"; //"./src/java/main/mail.properties";
+	private static int minSleep = 10;
+	private static int maxSleep = 600;
+	
 	/**
 	 * Constructor                 
 	 *
@@ -113,8 +117,8 @@ public class SRMRequestObject {
 		if(this.getUrl()==null || this.getUrl().contentEquals("")){
 			System.out.println("Null URL");
 			url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
-					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/" +
-					"ORNL/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
+					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL" +
+					"/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-12.nc";
 		}
 		
 		this.mailTo = request.getParameter("email");
@@ -159,7 +163,7 @@ public class SRMRequestObject {
 	 * Send confirmation of submission of SRM get request                
 	 *
 	 */
-	public void sendSubmissionConfirmation(){
+	private void sendSubmissionConfirmation(){
 		String subject = "Your request has been submitted.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been submitted to SRM. It may take some time to retreive the" +
          		" data. You will receive another email when the data is ready for download along with the download link. " +
@@ -172,7 +176,7 @@ public class SRMRequestObject {
 	 * Send confirmation after the request has been executed               
 	 *
 	 */
-	public void sendRequestCompletion(String turl){
+	private void sendRequestCompletion(String turl){
 		String subject = "Your request has been completed successfuly.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been retreived successfully from SRM. You may download the " +
 				"file(s) from the following link: \n" + turl + "\n "+
@@ -186,7 +190,7 @@ public class SRMRequestObject {
 	 * Send notification if the request failed execute for any reason              
 	 *
 	 */
-	public void sendRequestFailed(String status){
+	private void sendRequestFailed(String status){
 		String subject = "Your request could not be completed.";
 		String body = "Your request for file(s) in link\n"+ url +"\n could not be completed by SRM. The reason for the failure was " +
 				"cited as the error code \n" + status + ". Please try again later to check if the problem has been resolved." +
@@ -204,7 +208,7 @@ public class SRMRequestObject {
 	 * @param body the body of the email
 	 */
 	
-	public void sendEmail(String subject, String body){
+	private void sendEmail(String subject, String body){
 		String to = this.mailTo;
 		String host="smtp.ornl.gov";
 		String port="25";
@@ -213,8 +217,7 @@ public class SRMRequestObject {
 		String user = "e1g";
 		Properties prop = new Properties();
 		try {
-//            prop.load(new FileInputStream("./src/java/main/mail.properties"));
-            prop.load(new FileInputStream("./mail.properties"));
+            prop.load(new FileInputStream(mailPropFile));
 
             
             host = prop.getProperty("mailHost");
@@ -383,12 +386,12 @@ public class SRMRequestObject {
 		    req.submit();
 		   
 		    
-		    //Send Email Notifying that the request has been submitted
+		    //Send Email Notifying that the request has been submitted. 
 		    sendSubmissionConfirmation();
 		    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		    
 		    req.checkStatus();
-		    int sleepTime  = 10;
+		    int sleepTime  = minSleep;
 		    SRMRequestStatus response = req.getStatus();
 		    
 		    if(response != null){
@@ -404,8 +407,8 @@ public class SRMRequestObject {
 		        	Thread.currentThread().sleep(sleepTime * 1000);
 		        	sleepTime*=2;
 		        	
-		        	if(sleepTime>=600){
-		        		sleepTime=600;
+		        	if(sleepTime>=maxSleep){
+		        		sleepTime=maxSleep;
 		        	}
 		        	
 		        	//CHECK STATUS AGAIN
@@ -446,14 +449,15 @@ public class SRMRequestObject {
     	                System.out.println("\nTransferSURL="+uri);
     	                org.apache.axis.types.URI uri2 = fileStatus.getTURL();
     	                System.out.println("\nTURL="+uri2);
-    	                System.out.println("Wait Time:"+fileStatus.getFileLifeTime());
+    	                System.out.println("Pin Time:"+fileStatus.getPinLifeTime());	
      	                
     	                
     	               
     	                retStr += (uri.toString()+";");	//Return value
-    	                cc.disconnect();
+    	                
     	             }
     	          }//end while
+    	          cc.disconnect();
     	          //Notify by e-mail that request has been completed successfully.//
 	              sendRequestCompletion(retStr);
 	              //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -469,16 +473,22 @@ public class SRMRequestObject {
 	    
 	    StringTokenizer st2 = new StringTokenizer(retStr,";");
 	    
+	    /**
+	     * Used to store the local location of the files on the server cache
+	     * 
+	     */
+	    
 	    ArrayList<String> serverFileLocation = new ArrayList<String>();
 	    
 	    while(st2.hasMoreTokens()){
 	    	String tmpToken = st2.nextToken();
-	    	if(tmpToken != null && tmpToken!=""){
-	    		serverFileLocation.add(tmpToken.substring(retStr.indexOf("/lusture")));
+	    	if(tmpToken != null && tmpToken!="" && tmpToken.indexOf("/lustre")>=0){
+	    		serverFileLocation.add(tmpToken.substring(tmpToken.indexOf("/lustre")));
+	    		System.out.println("File on cache:" + tmpToken.substring(tmpToken.indexOf("/lustre")));
 	    	}
 	    }
 	    
-	    System.out.println("File on cache:" + serverFileLocation);
+	    
 	    
 		return ("<srm_url>"+retStr+"</srm_url>");
 	}
@@ -555,7 +565,7 @@ public class SRMRequestObject {
 		    req.srmLs();
 	        req.checkStatus();
 	        
-	        int sleepTime  = 10;
+	        int sleepTime  = minSleep;
 		    SRMRequestStatus response = req.getStatus();
 		    
 		    if(response != null){
@@ -568,8 +578,8 @@ public class SRMRequestObject {
 		        	Thread.currentThread().sleep(sleepTime * 1000);
 		        	sleepTime*=2;
 		        	
-		        	if(sleepTime>=600){
-		        		sleepTime=600;
+		        	if(sleepTime>=maxSleep){
+		        		sleepTime=maxSleep;
 		        	}
 		        	
 		        	//CHECK STATUS AGAIN
