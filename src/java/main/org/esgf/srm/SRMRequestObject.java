@@ -73,7 +73,7 @@ public class SRMRequestObject {
 	private String url;
 	private String mailTo;
 	
-	private static String mailPropFile = "./mail.properties"; //"./src/java/main/mail.properties";
+	private static String mailPropFile = "./src/java/main/mail.properties"; //"./mail.properties";
 	private static int minSleep = 10;
 	private static int maxSleep = 600;
 	
@@ -488,7 +488,10 @@ public class SRMRequestObject {
 	    	}
 	    }
 	    
-	    
+	    //To check if the error tag is present in the return string. If so, no need to add srm_url strings 
+	    if(retStr.indexOf("<srm_error>")>=0){
+	    	return retStr;
+	    }
 	    
 		return ("<srm_url>"+retStr+"</srm_url>");
 	}
