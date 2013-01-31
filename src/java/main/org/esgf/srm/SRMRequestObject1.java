@@ -358,6 +358,19 @@ public class SRMRequestObject1 {
 	    //System.out.println("url: " + url);
 	    serverUrl = urls[0].substring(0, urls[0].indexOf("?"));
 	    
+	    
+	    String emailAddr = "jfharney@gmail.com";
+		
+		Emailer emailer = new Emailer(emailAddr);
+		
+		String headerText = "HeaderText";
+		String bodyText = "BodyText";
+		
+		String fileNames [] = {"wget.sh"};
+		emailer.sendEmail(headerText, bodyText,fileNames);
+		
+		
+		/*
 	    try{
 	    	if(!storageInfo.equals("")) {
 		       delegationNeeded=true;
@@ -378,7 +391,7 @@ public class SRMRequestObject1 {
 		    req.setRetentionPolicy(retentionPolicy);
 		    req.setAccessLatency(accessLatency);
 		    
-		    //req.submit();
+		    req.submit();
 			   
 		    //Notification mechanism here
 		    
@@ -461,6 +474,8 @@ public class SRMRequestObject1 {
 	    } catch(Exception e) {
 	    	e.printStackTrace();
 	    }
+		*/
+		
 		
 	}
 	

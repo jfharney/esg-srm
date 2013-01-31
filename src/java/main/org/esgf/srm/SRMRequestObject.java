@@ -35,6 +35,7 @@
 
 package org.esgf.srm;
 
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -112,6 +113,9 @@ public class SRMRequestObject {
 		}
 	
 		this.url = request.getParameter("url");
+		url = "srm://esg.ccs.ornl.gov:46790/srm/v2/server?" +
+				"SFN=mss://esg.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL/CESM1" +
+				"/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1979-01.nc;";
 		
 		//If null or empty url
 		if(this.getUrl()==null || this.getUrl().contentEquals("")){
@@ -367,7 +371,7 @@ public class SRMRequestObject {
 		       delegationNeeded=true;
 		    }
 		    SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
-		    
+		    System.out.println("Credential name: " + cc.getCredential().getName());
 		    System.out.println("CC Initialized");
 //		    outLogFile.write("CC Initialized"+"\n");
 		    cc.connect(serverUrl);
@@ -387,7 +391,15 @@ public class SRMRequestObject {
 		   
 		    
 		    //Send Email Notifying that the request has been submitted. 
-		    sendSubmissionConfirmation();
+		    String emailAddr = "jfharney@gmail.com";
+			
+			Emailer1 emailer = new Emailer1(emailAddr);
+			
+			String headerText = "Submission Confirmation";
+			String bodyText = "Your request for file(s) has been submitted to SRM";
+			
+			//emailer.sendEmail(headerText, bodyText);
+		    //sendSubmissionConfirmation();
 		    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 		    
 		    req.checkStatus();
@@ -459,8 +471,17 @@ public class SRMRequestObject {
     	          }//end while
     	          cc.disconnect();
     	          //Notify by e-mail that request has been completed successfully.//
-	              sendRequestCompletion(retStr);
-	              //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+	              //sendRequestCompletion(retStr);
+    	          emailAddr = "jfharney@gmail.com";
+    				
+    			  emailer = new Emailer1(emailAddr);
+    				
+    			  headerText = "Submission Confirmation";
+    			  bodyText = "Your SRM Requests are ready for download";
+    				
+    		      emailer.sendEmail(headerText, bodyText);
+    	          
+    	          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 	        		
     	       }//end if
 		    	
