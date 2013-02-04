@@ -60,6 +60,8 @@ import gov.lbl.srm.StorageResourceManager.*;
 import gov.lbl.srm.client.wsdl.*;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.esgf.legacy.EmailNotifier;
+import org.esgf.legacy.Emailer1;
 
 /**
  * @author      Ekhlas Sonu <esonu@uga.edu>

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import lbnl.SrmClientSoapBindingImpl;
 
+import org.esgf.srm.utils.Utils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -27,72 +28,44 @@ public class SRMRequestController {
 	@RequestMapping(method=RequestMethod.GET, value="/srmrequest")
     public @ResponseBody String getSRMRequest(HttpServletRequest request) throws Exception {
 		
-		/*
-		System.out.println("In getSRMRequest controller");
-		System.out.println("TIME: "+System.currentTimeMillis());
+		System.out.println("In ESG-SRM SRMRequestController HTTP GET: getSRMRequest");
+		
+		SRMObj srm = new SRMObj();
+		
+		srm.get();
 		
 		
-		for(Object key : request.getParameterMap().keySet()) {
-			System.out.println("Key: " + (String) key);
-		}
-*/		
-		System.out.println("Trying srm get in main");
-
+/* Invoking the new implementation
 	       try {
-	SrmClientSoapBindingImpl s = new SrmClientSoapBindingImpl();
-	s.srmGet("httpg://esg.ccs.ornl.gov:46790/srm/v2/server","gsiftp://esg.ccs.ornl.gov/lustre/esgfs/SRMTemp/test.data");
+	
+	    	   SrmClientSoapBindingImpl s = new SrmClientSoapBindingImpl();
+	
+	    	   s.srmGet("httpg://esg.ccs.ornl.gov:46790/srm/v2/server","gsiftp://esg.ccs.ornl.gov/lustre/esgfs/SRMTemp/test.data");
 
 	       } catch(Exception e) {
 	          e.printStackTrace();
 	       }
-		
-	       /*
-		String response = "<srm_url>srm</srm_url>";
-		
-		String [] urls = getUrls(request);
-		
-		SRMRequestObject1 obj = new SRMRequestObject1(urls);
-		
-		//System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
-		
-//		if(obj.getOpenId()==null||obj.getOpenId()==""){
-//			response = "<srm_error>NullOpenId</srm_error>";
-//			return response;
-//		}
-//		
-//		if(obj.getProxyId()==null||obj.getProxyId()==""){
-//			response = "<srm_error>NullProxyId</srm_error>";
-//			return response;
-//		}
-//		
-//		
-//		if(obj.getProxyPwd()==null||obj.getProxyPwd()==""){
-//			response = "<srm_error>NullProxyPwd</srm_error>";
-//			return response;
-//		}
-//		
-//		if(obj.getToemail()==null||obj.getToemail()==""){
-//			response = "<srm_error>NullEmailAdress</srm_error>";
-//			return response;
-//		}
-		
-		//Invoke BeStMan here
-		//response = obj.runBeStManGetRequest();
-		obj.get();	
-		
-		return response;
-		*/
-	       return "<a>a</a>";
+*/		
+		return "<response>" + Utils.responseMessage + "</response>\n";
 	}
 	
 	
 	
 	@RequestMapping(method=RequestMethod.POST, value="/srmrequest")
 	//public ModelAndView addEmployee(@RequestBody String body) {
-	public void addSRMRequest(HttpServletRequest request,final HttpServletResponse response) {
+	public @ResponseBody String addSRMRequest(HttpServletRequest request,final HttpServletResponse response) {
 		
 		//return "<a>a</a>";
+		System.out.println("In HTTP POST: addSRMRequest");
 		
+
+		SRMObj srm = new SRMObj();
+		
+		srm.get();
+		
+		return "<response>" + Utils.responseMessage + "</response>";
+		
+		/*
 		System.out.println("In addSRMRequest");
 		
 		System.out.println("TIME: "+System.currentTimeMillis());
@@ -104,29 +77,9 @@ public class SRMRequestController {
 		
 		//SRMRequestObject1 obj = new SRMRequestObject1(urls);
 		SRMRequestObject obj = new SRMRequestObject(request);
-		//System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
 		
-//		if(obj.getOpenId()==null||obj.getOpenId()==""){
-//			response = "<srm_error>NullOpenId</srm_error>";
-//			return response;
-//		}
-//		
-//		if(obj.getProxyId()==null||obj.getProxyId()==""){
-//			response = "<srm_error>NullProxyId</srm_error>";
-//			return response;
-//		}
-//		
-//		
-//		if(obj.getProxyPwd()==null||obj.getProxyPwd()==""){
-//			response = "<srm_error>NullProxyPwd</srm_error>";
-//			return response;
-//		}
-//		
-//		if(obj.getToemail()==null||obj.getToemail()==""){
-//			response = "<srm_error>NullEmailAdress</srm_error>";
-//			return response;
-//		}
 		
+	
 		//Invoke BeStMan here
 		//response = obj.runBeStManGetRequest();
 		//obj.get();	
@@ -138,7 +91,9 @@ public class SRMRequestController {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		 
+		*/
+		
+		
 	}
 	
 	
@@ -234,3 +189,84 @@ public class SRMRequestController {
 	
 	
 }
+
+
+
+
+/*
+System.out.println("In getSRMRequest controller");
+System.out.println("TIME: "+System.currentTimeMillis());
+
+
+for(Object key : request.getParameterMap().keySet()) {
+	System.out.println("Key: " + (String) key);
+}
+*/	
+
+
+
+/*
+//System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
+
+//if(obj.getOpenId()==null||obj.getOpenId()==""){
+//	response = "<srm_error>NullOpenId</srm_error>";
+//	return response;
+//}
+//
+//if(obj.getProxyId()==null||obj.getProxyId()==""){
+//	response = "<srm_error>NullProxyId</srm_error>";
+//	return response;
+//}
+//
+//
+//if(obj.getProxyPwd()==null||obj.getProxyPwd()==""){
+//	response = "<srm_error>NullProxyPwd</srm_error>";
+//	return response;
+//}
+//
+//if(obj.getToemail()==null||obj.getToemail()==""){
+//	response = "<srm_error>NullEmailAdress</srm_error>";
+//	return response;
+//}
+*/	
+
+
+
+
+
+/*
+String response = "<srm_url>srm</srm_url>";
+
+String [] urls = getUrls(request);
+
+SRMRequestObject1 obj = new SRMRequestObject1(urls);
+
+//System.out.println("OpenId=" + obj.getOpenId() +"\nProxyId="+ obj.getProxyId() + "\nPassword=" + obj.getProxyPwd() +"\nURL="+ obj.getUrl() + "\nEmail To:" + obj.getToemail());
+
+//if(obj.getOpenId()==null||obj.getOpenId()==""){
+//	response = "<srm_error>NullOpenId</srm_error>";
+//	return response;
+//}
+//
+//if(obj.getProxyId()==null||obj.getProxyId()==""){
+//	response = "<srm_error>NullProxyId</srm_error>";
+//	return response;
+//}
+//
+//
+//if(obj.getProxyPwd()==null||obj.getProxyPwd()==""){
+//	response = "<srm_error>NullProxyPwd</srm_error>";
+//	return response;
+//}
+//
+//if(obj.getToemail()==null||obj.getToemail()==""){
+//	response = "<srm_error>NullEmailAdress</srm_error>";
+//	return response;
+//}
+
+//Invoke BeStMan here
+//response = obj.runBeStManGetRequest();
+obj.get();	
+
+return response;
+*/

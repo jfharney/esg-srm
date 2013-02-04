@@ -1,4 +1,4 @@
-package org.esgf.srm;
+package org.esgf.legacy;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -82,6 +82,7 @@ public class Emailer1 {
 	    
 	    
 	}
+	
 	
 	public static void main(String [] args) throws AddressException, MessagingException {
 		

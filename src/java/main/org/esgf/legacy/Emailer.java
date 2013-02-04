@@ -1,4 +1,4 @@
-package org.esgf.srm;
+package org.esgf.legacy;
 
 import java.util.*;
 import javax.mail.*;
@@ -18,7 +18,39 @@ public class Emailer {
 	private String headerText;
 	private String bodyText;
 	
+	private String attachment;
+	
 	private Multipart mp;
+	
+	public static void main(String [] args) {
+		String to = "jfharney@gmail.com";
+	    String from = "esgf-user@lists.llnl.gov";
+	
+	    String host = "localhost";
+	
+	    Properties properties = System.getProperties();
+	
+	    properties.setProperty("mail.smtp.host",host);
+	
+	    Session session = Session.getDefaultInstance(properties);
+	
+	    try {
+	    	MimeMessage message = new MimeMessage(session);
+	    	message.setFrom(new InternetAddress(from));
+	
+	    	message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+	
+	    	message.setSubject("This is the subject");
+	    	message.setText("This is the message");
+	
+	    	Transport.send(message);
+	
+	    } catch(MessagingException mex) {
+	    	mex.printStackTrace();
+	    }
+	
+	}
+
 	
 	public Emailer(String emailAddr) {
 		
@@ -99,65 +131,44 @@ public class Emailer {
 	}
 	
 	
-  public static void main(String [] args) {
-    System.out.println("Jere");
-
-    String to = "jfharney@gmail.com";
-    String from = "esgf-user@lists.llnl.gov";
+	
 
 
-    String host = "localhost";
-
-    Properties properties = System.getProperties();
-
-    properties.setProperty("mail.smtp.host",host);
-
-    Session session = Session.getDefaultInstance(properties);
-
-    try {
-      MimeMessage message = new MimeMessage(session);
-
-      message.setFrom(new InternetAddress(from));
-
-      message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-
-      message.setSubject("This is the subject");
-
-      message.setText("This is the message");
-
-      Transport.send(message);
-
-      System.out.println("successful");
-
-    } catch(MessagingException mex) {
-      mex.printStackTrace();
-    }
-
-  }
-
-
-
-public String getBodyText() {
-	return bodyText;
-}
-
-
-
-public void setBodyText(String bodyText) {
-	this.bodyText = bodyText;
-}
-
-
-
-public String getHeaderText() {
-	return headerText;
-}
-
-
-
-public void setHeaderText(String headerText) {
-	this.headerText = headerText;
-}
+	public String getBodyText() {
+		return bodyText;
+	}
+	
+	
+	
+	public void setBodyText(String bodyText) {
+		this.bodyText = bodyText;
+	}
+	
+	
+	
+	public String getHeaderText() {
+		return headerText;
+	}
+	
+	
+	
+	public void setHeaderText(String headerText) {
+		this.headerText = headerText;
+	}
+	
+	/**
+	 * @return the attachment
+	 */
+	public String getAttachment() {
+		return attachment;
+	}
+	
+	/**
+	 * @param attachment the attachment to set
+	 */
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
 
 
 }

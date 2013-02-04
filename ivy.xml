@@ -52,6 +52,9 @@
     
     <dependency org="javax.mail" name="mail" rev="1.4.3" transitive="false" conf="base->default" />
     
+    <dependency org="org.esgf" name="esgf-node-manager" rev="latest.milestone" transitive="false" conf="base->runtime" />
+    <dependency org="org.esgf" name="esgf-security" rev="latest.milestone" transitive="false" conf="base->default" />
+    
 <!--
     <dependency org="org.springframework.security" name="spring-security-core" rev="${spring.version}" conf="base->default" />
     <dependency org="org.springframework.security" name="spring-security-config" rev="${spring.version}" conf="base->default" />

@@ -1,4 +1,4 @@
-package org.esgf.srm;
+package org.esgf.legacy;
 
 
 import javax.mail.Message;
