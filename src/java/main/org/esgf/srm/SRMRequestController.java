@@ -30,9 +30,18 @@ public class SRMRequestController {
 		
 		System.out.println("In ESG-SRM SRMRequestController HTTP GET: getSRMRequest");
 		
-		SRMObj srm = new SRMObj();
 		
-		srm.get();
+		/*
+		String url = request.getParameter("url");
+		
+		System.out.println("URL:\n");
+		System.out.println("\t" + url);
+		
+		
+		
+		SRMObj srm = new SRMObj();
+		*/
+		//srm.get();
 		
 		
 /* Invoking the new implementation
@@ -55,13 +64,92 @@ public class SRMRequestController {
 	//public ModelAndView addEmployee(@RequestBody String body) {
 	public @ResponseBody String addSRMRequest(HttpServletRequest request,final HttpServletResponse response) {
 		
-		//return "<a>a</a>";
 		System.out.println("In HTTP POST: addSRMRequest");
+
+
+		
+		
+		String length = request.getParameter("length");
+		if(length == null) {
+			length = "1";
+		}
+		
+		String [] urls = null;
+		String [] file_ids = null;
+		if(length.equals("1")) {
+
+			String url = request.getParameter("url");
+			System.out.println("url: " + url);
+			urls = new String[1];
+			urls[0] = url;
+			
+			/*
+			String file_id = request.getParameter("file_id");
+			System.out.println("file_id: " + file_id);
+			file_ids = new String[1];
+			file_ids[0] = file_id;
+			*/
+		}
+		else {
+			urls = request.getParameterValues("url");
+			if(urls == null) {
+				System.out.println("null urls");
+			} else {
+				for(int i=0;i<urls.length;i++) {
+					System.out.println("urls: " + urls[i]);
+				}
+			}
+			/*
+			file_ids = request.getParameterValues("file_id");
+			if(file_ids == null) {
+				System.out.println("null file_ids");
+			} else {
+				for(int i=0;i<urls.length;i++) {
+					System.out.println("file_ids: " + file_ids[i]);
+				}
+			}
+			*/
+		}
+		
+		System.out.println("Front end urls");
+		for(int i=0;i<urls.length;i++) {
+			System.out.println("url: " + i + " " + urls[i]);
+		}
+		System.out.println("End Front end urls");
+		
+		
+		SRMRequestObject1 srm = new SRMRequestObject1(urls);
+		
+		//send initial email
+		System.out.println("Sending initial email...");
+		//srm.sendInitialEmail();
 		
 
-		SRMObj srm = new SRMObj();
+		/*
+		System.out.println("About to send request to bestman...");
+		try {
+			srm.runBeStManGetRequest();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		*/
 		
-		srm.get();
+		//send the response email
+		System.out.println("Sending response email...");
+		//srm.sendResponseEmail();
+		//gsiftp://esg2-sdnl1.ccs.ornl.gov//lustre/esgfs/SRM/shared/V.0.0-505553807
+		String returnedFile = "gsiftp://esg2-sdnl1.ccs.ornl.gov//lustre/esgfs/SRM/shared/V.0.0-505553807/t341f02.FAMIPr.cam2.h0.1978-09.nc";
+		
+		
+		
+		
+		
+		
+		
+		
+		//SRMObj srm = new SRMObj();
+		
+		//srm.get();
 		
 		return "<response>" + Utils.responseMessage + "</response>";
 		

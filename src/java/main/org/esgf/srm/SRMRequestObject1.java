@@ -61,6 +61,9 @@ import gov.lbl.srm.client.wsdl.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.esgf.legacy.EmailNotifier;
 import org.esgf.legacy.Emailer;
+import org.esgf.legacy.Emailer1;
+import org.esgf.srm.email.Email;
+import org.esgf.srm.email.EmailUtils;
 
 /**
  * @author      Ekhlas Sonu <esonu@uga.edu>
@@ -69,6 +72,20 @@ import org.esgf.legacy.Emailer;
  */
 
 public class SRMRequestObject1 {
+	
+	
+	private Email initialEmail;
+	private Email responseEmail;
+	
+	private String [] urls;
+	private String [] file_ids;
+	
+	private String [] t_urls;
+	
+	private static int minSleep = 10;
+	
+	private static int maxSleep = 600;
+	/*
 	private String openId;
 	private String proxyId;
 	private String proxyPwd;
@@ -80,216 +97,59 @@ public class SRMRequestObject1 {
 	private static String mailPropFile = "./src/java/main/mail.properties"; //"./mail.properties";
 	private static int minSleep = 10;
 	private static int maxSleep = 600;
+	*/
 	
-	/**
-	 * Constructor                 
-	 *
-	 * Constructor that  takes the http request 
-	 *  and extracts the required parameters from it:
-	 *  URL, OpenId, ProxyId, Proxy Password, and 
-	 *  users email id
-	 *
-	 * @param  request The HttpServletRequest object containing parameters 
-	 * 
-	 */
-	
-	public SRMRequestObject1(HttpServletRequest request){
-		this.openId = request.getParameter("openid");
+	public SRMRequestObject1() {
+		this.urls = null;
+		//this.file_ids = null;
+		this.t_urls = null;
 		
-		//If null or empty OpenId
-		if(this.getOpenId()==null || this.getOpenId().contentEquals("")){
-			System.out.println("Null openid");
-		}
-		
-		this.proxyId = request.getParameter("proxyid");
-		
-		//If null or empty ProxyId
-		if(this.getProxyId()==null || this.getProxyId().contentEquals("")){
-			System.out.println("Null ProxId");
-		}
-		
-		this.proxyPwd = request.getParameter("pass");
-		
-		//If null or empty Password
-		if(this.getProxyPwd()==null || this.getProxyPwd().contentEquals("")){
-			System.out.println("Null Proxy Password");
-		}
-	
-		this.url = request.getParameter("url");
-		
-		//If null or empty url
-		if(this.getUrl()==null || this.getUrl().contentEquals("")){
-			System.out.println("Null URL");
-			url = "srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?" +
-					"SFN=mss://esg2-sdnl1.ccs.ornl.gov/proj/cli049/UHRGCS/ORNL" +
-					"/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-12.nc";
-		}
-		
-		this.mailTo = request.getParameter("email");
-		//If null or empty url
-		if(this.getUrl()==null || this.getUrl().contentEquals("")){
-			System.out.println("NULL to email id");
-		}
-		
-		
+		//initialize things here
+		setInitialEmail(new Email());
+		setResponseEmail(new Email());
 		
 	}
 	
 	public SRMRequestObject1(String [] urls) {
 		this.urls = urls;
+		//this.file_ids = file_ids;
+		this.t_urls = null;
+		
+		//initialize things here
+		setInitialEmail(new Email());
+		setResponseEmail(new Email());
+				
 	}
 	
 	
-	public String getOpenId() {
-		return openId;
+	public void sendInitialEmail() {
+		//set up the initial email
+		Email e1 = new Email();
+		e1.setHeaderText(EmailUtils.DEFAULT_INITIAL_EMAIL_HEADER);
+		e1.setBodyText(this.getInitialEmailText());
+		e1.createTextOnlyEmail();
+		
+		System.out.println("Writing and sending initial email");
+		
+		//write and send the initial email
+		this.setInitialEmail(e1);
+		this.initialEmail.sendEmail();
 	}
-	public void setOpenId(String openId) {
-		this.openId = openId;
-	}
-	public String getProxyId() {
-		return proxyId;
-	}
-	public void setProxyId(String proxyId) {
-		this.proxyId = proxyId;
-	}
-	public String getProxyPwd() {
-		return proxyPwd;
-	}
-	public void setProxyPwd(String proxyPwd) {
-		this.proxyPwd = proxyPwd;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	public String getToemail() {
-		return mailTo;
-	}
-	public void setToemail(String toemail) {
-		this.mailTo = toemail;
-	}
+	
+	public void sendResponseEmail() {
+		//write and send the wget script email
+		//----
+		Email e2 = new Email();
+		e2.setHeaderText(EmailUtils.DEFAULT_WGET_EMAIL_HEADER);
+		e2.setBodyText(this.getWgetEmailText());
+		
+		e2.setFileNames(t_urls);
+		e2.writeWgetContent(t_urls);
 
-	/**
-	 * Send confirmation of submission of SRM get request                
-	 *
-	 */
-	private void sendSubmissionConfirmation(){
-		String subject = "Your request has been submitted.";
-		String body = "Your request for file(s) in link\n"+ url +"\n has been submitted to SRM. It may take some time to retreive the" +
-         		" data. You will receive another email when the data is ready for download along with the download link. " +
-         		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
-         		"your request. \n\nThanks.";
-        sendEmail(subject, body);
+		this.setResponseEmail(e2);
+		this.responseEmail.sendEmail();
+		//----
 	}
-	
-	/**
-	 * Send confirmation after the request has been executed               
-	 *
-	 */
-	private void sendRequestCompletion(String turl){
-		String subject = "Your request has been completed successfuly.";
-		String body = "Your request for file(s) in link\n"+ url +"\n has been retreived successfully from SRM. You may download the " +
-				"file(s) from the following link: \n" + turl + "\n "+
-         		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
-         		"your request. \n\nThanks.";
-        sendEmail(subject, body);
-	}
-	
-	
-	/**
-	 * Send notification if the request failed execute for any reason              
-	 *
-	 */
-	private void sendRequestFailed(String status){
-		String subject = "Your request could not be completed.";
-		String body = "Your request for file(s) in link\n"+ url +"\n could not be completed by SRM. The reason for the failure was " +
-				"cited as the error code \n" + status + ". Please try again later to check if the problem has been resolved." +
-						"\n\nThanks.";
-        sendEmail(subject, body);
-	}
-	
-	/**
-	 * Send email
-	 * 
-	 * Send email to the address in variable mailTo. 
-	 * Reads file mail.properties to extract mailing options
-	 * 
-	 * @param subject subject of the email
-	 * @param body the body of the email
-	 */
-	
-	private void sendEmail(String subject, String body){
-		String to = this.mailTo;
-		String host="smtp.ornl.gov";
-		String port="25";
-		String from= "";
-		String password = "";
-		String user = "e1g";
-		Properties prop = new Properties();
-		try {
-            prop.load(new FileInputStream(mailPropFile));
-
-            
-            host = prop.getProperty("mailHost");
-            port = prop.getProperty("mailPort");
-            from = prop.getProperty("mailFrom");
-            user = prop.getProperty("user");
-            
-            password = prop.getProperty("password");
-            
-            List<String> argList = new ArrayList<String>();
-            
-            argList.add("-to");
-            argList.add(to);
-            System.out.println("email to: "+ to);
-            
-            argList.add("-from");
-            argList.add(from);
-            System.out.println("email from: "+ from);
-            
-            argList.add("-user");
-            argList.add(user);
-            System.out.println("user: "+ user);
-            
-            argList.add("-host");
-            argList.add(host);
-            System.out.println("host: "+ host);
-            
-            argList.add("-port");
-            argList.add(port);
-            System.out.println("port: "+ port);
-            
-            argList.add("-subject");
-            argList.add(subject);
-            System.out.println("subject: "+ subject);
-            
-            argList.add("-body");
-            argList.add(body);
-            System.out.println("body: "+ body);
-            
-            argList.add("-password");
-            argList.add(password);
-            
-            
-            String args[] = argList.toArray(new String[argList.size()]);
-//            System.out.println("args[].length = "+args.length);
-            
-            for(int i=0; i < argList.size(); i++){
-            	args[i] = argList.get(i);
-            }
-            EmailNotifier submitted = new EmailNotifier(args);
-            
-            submitted.sendMail();
-            
-            
-	    } catch (Exception e) {
-	    	System.out.println("SRMRequestObject->sendSubmissionConfirmation: Something went wrong while reading the property file");
-	    	e.printStackTrace();
-	    }
-	}
-	
 	
 	/**
 	 * Run BeStMan GET request to extract the file at url from SRM server
@@ -305,41 +165,13 @@ public class SRMRequestObject1 {
 	@SuppressWarnings("static-access")
 	public String runBeStManGetRequest() throws Exception{
 
-		String response = null;
 		
-	    String serverUrl = "";
-	    String uid="";
-	    String logPath="/tmp/esg-srm.log";
-	    String log4jlocation="";
-	    String storageInfo="";
-	    String fileType="volatile";
-	    String retentionPolicy="replica";
-	    String accessLatency="online";
-	    boolean debug = false;
-	    boolean delegationNeeded=false;
-		
+		String retStr = "<srm_error>SRMInitializationError</srm_error>";
 	    
-	    String ttemp = System.getProperty("log4j.configuration");
-	    //System.out.println("ttemp = "+ ttemp);
-	    if(ttemp != null && !ttemp.equals("")) {
-	       log4jlocation = ttemp;
-	    }
 		
-	    System.out.println("url: " + url);
-	    
-	    for(int i=0;i<urls.length;i++) {
-	    	
-	    }
-	    
-		return response;
-	}
-	
-	
-	public void get() {
-		
-		
-		//String getResponse = null;
-		
+		/**
+		 * The following variables and subsequent code is adopted from the BeStMan api
+		 */
 	    String serverUrl = "";
 	    String uid="";
 	    String logPath="/tmp/esg-srm.log";
@@ -352,68 +184,88 @@ public class SRMRequestObject1 {
 	    boolean delegationNeeded=false;
 		
 	    String ttemp = System.getProperty("log4j.configuration");
-	    //System.out.println("ttemp = "+ ttemp);
+	    System.out.println("ttemp = "+ ttemp);
 	    if(ttemp != null && !ttemp.equals("")) {
 	       log4jlocation = ttemp;
 	    }
-		
-	    //System.out.println("url: " + url);
-	    serverUrl = urls[0].substring(0, urls[0].indexOf("?"));
 	    
 	    
-	    String emailAddr = "jfharney@gmail.com";
+	    
+	    String[] surl = new String[this.urls.length];
+	    
+	    for(int i=0;i<this.urls.length;i++) {
+	    	//surl[i] = SRMUtils.stripIndex(this.urls[i]);
+	    	surl[i] = SRMUtils.transformServerName(this.urls[i]);
+	    	System.out.println("surl[" + i + ": " + surl[i]);
+	    }
+	    
+	    
+	    if(surl==null || surl.length==0 || surl[0] == null || surl[0] == "") {
+	       System.out.println("Please provide the correct surl");
+	       retStr = "<srm_error>Invalid or null SURLS</srm_error>";
+	       return retStr;
+		}
+	    
+	    /**
+	     * The server of the url is the part of the first SURL 
+	     * that appears before the ? sign.
+	     * 
+	     */
+		//for(int i=0;i<)
 		
-		Emailer emailer = new Emailer(emailAddr);
+	    
+	    
+	    serverUrl = SRMUtils.extractServerName(surl[0]);
+	    
+	    System.out.println("\n\n\tTRYING BESTMAN REQUEST to server" + serverUrl + "\n\n");
 		
-		String headerText = "HeaderText";
-		String bodyText = "BodyText";
+	    
 		
-		String fileNames [] = {"wget.sh"};
-		emailer.sendEmail(headerText, bodyText,fileNames);
-		
-		
-		/*
 	    try{
 	    	if(!storageInfo.equals("")) {
 		       delegationNeeded=true;
 		    }
+	    	System.out.println("\n\n\ttrying...");
 		    SRMServer cc = new SRMServer(log4jlocation, logPath, debug, delegationNeeded);
-		    
+		    System.out.println("Credential name: " + cc.getCredential().getName());
 		    System.out.println("CC Initialized");
+//		    outLogFile.write("CC Initialized"+"\n");
 		    cc.connect(serverUrl);
 		    System.out.println("Connection Established");
-		    cc.ping(uid);
+//		    outLogFile.write("Connection Established"+"\n");
+		    
 		    SRMRequest req = new SRMRequest();
 		    req.setSRMServer(cc);
 		    req.setAuthID(uid);
 		    req.setRequestType("get");
-		    req.addFiles(urls, null,null);
+		    
+		    System.out.println("surl: " + surl[0]);
+		    
+		    req.addFiles(surl, null,null);
 		    req.setStorageSystemInfo(storageInfo);
 		    req.setFileStorageType(fileType);
 		    req.setRetentionPolicy(retentionPolicy);
 		    req.setAccessLatency(accessLatency);
-		    
+		    System.out.println("Submitting...\n\n");
 		    req.submit();
-			   
-		    //Notification mechanism here
-		    
 		    
 		    req.checkStatus();
 		    int sleepTime  = minSleep;
 		    SRMRequestStatus response = req.getStatus();
 		    
-		    String retStr = null;
-		    
 		    if(response != null){
 		    	while(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_QUEUED ||
 		                response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS){
-		    	
 		    		System.out.println("\nRequest.status="+response.getReturnStatus().getStatusCode());
-		    		System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
-		    		System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
-		    		
-		    		Thread.currentThread().sleep(sleepTime * 1000);
+//		    		outLogFile.write("\nRequest.status="+response.getReturnStatus().getStatusCode()+"\n");
+			        System.out.println("request.explanation="+response.getReturnStatus().getExplanation());
+//			        outLogFile.write("request.explanation="+response.getReturnStatus().getExplanation()+"\n");
+			        
+			    	System.out.println("SRM-CLIENT: Next status call in "+ sleepTime + " secs");
+//			    	outLogFile.write("SRM-CLIENT: Next status call in "+ sleepTime + " secs"+"\n");
+		        	Thread.currentThread().sleep(sleepTime * 1000);
 		        	sleepTime*=2;
+		        	
 		        	if(sleepTime>=maxSleep){
 		        		sleepTime=maxSleep;
 		        	}
@@ -422,6 +274,7 @@ public class SRMRequestObject1 {
 		        	req.checkStatus();
 				    response = req.getStatus();
 		        	
+				    
 				    //If failed to extract then exit
 		        	if(!(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS || 
 		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED ||
@@ -429,193 +282,142 @@ public class SRMRequestObject1 {
 		        			response.getReturnStatus().getStatusCode() == TStatusCode.SRM_REQUEST_INPROGRESS)){
 		        		System.out.println("SRM failed to extract file. Exiting.");
 		        		retStr = "<srm_error>" + response.getReturnStatus().getStatusCode().toString() + "</srm_error>";
-		        		sendRequestFailed(response.getReturnStatus().getStatusCode().toString());
+		        		System.out.println("status code: " + response.getReturnStatus().getStatusCode().toString());
+		        		System.out.println("explanation: " + response.getReturnStatus().getExplanation());
+		        		//sendRequestFailed(response.getReturnStatus().getStatusCode().toString());
 		        		cc.disconnect();
+		        		return retStr;
 		        	}
+		        	
+		        	
+			    }
+		    	System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
+		        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
+		        
+		    	if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
+    	          response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED) {
+		    		retStr="";
+    	          HashMap map = response.getFileStatuses();
+    	          Set set = map.entrySet();
+    	          Iterator i = set.iterator();
+    	          while(i.hasNext()) {
+    	             Map.Entry me = (Map.Entry) i.next();
+    	             String key =  (String) me.getKey();
+    	             Object value = me.getValue();
+    	             if(value != null) {
+    	                FileStatus fileStatus = (FileStatus) value;
+    	                org.apache.axis.types.URI uri = fileStatus.getTransferSURL();
+    	                System.out.println("\nTransferSURL="+uri);
+    	                org.apache.axis.types.URI uri2 = fileStatus.getTURL();
+    	                System.out.println("\nTURL="+uri2);
+    	                System.out.println("Pin Time:"+fileStatus.getPinLifeTime());	
+     	                
+    	                
+    	               
+    	                retStr += (uri.toString()+";");	//Return value
+    	                
+    	             }
+    	          }//end while
+    	          cc.disconnect();
+    	          //Notify by e-mail that request has been completed successfully.//
+	              //sendRequestCompletion(retStr);
+    	          
+    	          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+	        		
+    	       }//end if
 		    	
-		    	}
-		    
 		    }
-	    	
-		    System.out.println("\nStatus.code="+response.getReturnStatus().getStatusCode());
-	        System.out.println("\nStatus.exp="+response.getReturnStatus().getExplanation());
-	        
-	        if(response.getReturnStatus().getStatusCode() == TStatusCode.SRM_SUCCESS ||
-	    	          response.getReturnStatus().getStatusCode() == TStatusCode.SRM_FILE_PINNED) {
-	        
-	        	retStr="";
-	        	
-	        	HashMap map = response.getFileStatuses();
-  	          	Set set = map.entrySet();
-  	          	Iterator i = set.iterator();
-  	          	while(i.hasNext()) {
-  	          		Map.Entry me = (Map.Entry) i.next();
-  	          		String key =  (String) me.getKey();
-  	          		Object value = me.getValue();
-  	          		if(value != null) {
-	  	                FileStatus fileStatus = (FileStatus) value;
-	  	                org.apache.axis.types.URI uri = fileStatus.getTransferSURL();
-	  	                System.out.println("\nTransferSURL="+uri);
-	  	                org.apache.axis.types.URI uri2 = fileStatus.getTURL();
-	  	                System.out.println("\nTURL="+uri2);
-	  	                System.out.println("Pin Time:"+fileStatus.getPinLifeTime());	
-   	                
-  	                
-  	               
-	  	                retStr += (uri.toString()+";");	//Return value
-  	                
-  	          		}
-  	          	}//end while
-  	          	cc.disconnect();
-	        	
-	        }
-	        
 		    
 		    
-		    
-	    } catch(Exception e) {
+	    }catch(Exception e) {
+	    	System.out.println("\n\n\tping failed...");
 	    	e.printStackTrace();
 	    }
+			
+		
+			
+	    
+	    
+	    /*
+			
+			
+		//go into bestman and add the t_urls 
+		//****
+		
+		//---go into bestman
+		t_urls = new String[this.urls.length];
+		
+		for(int i=0;i<t_urls.length;i++) {
+			t_urls[i] = "t_url" + i;
+		}
+		
+		System.out.println("Extracting files from the deep storage");
 		*/
+		//---
 		
 		
-	}
-	
-	public void ping() {
+		//****
 		
+		
+				
+		return null;
 	}
 
 	/**
-	 * This was a part of SRMDirTest.java file in BeStMan api. 
-	 * @see https://codeforge.lbl.gov/frs/download.php/178/bestman2.java.api-2.0.0.tar.gz
+	 * @return the responseEmail
 	 */
+	public Email getResponseEmail() {
+		return responseEmail;
+	}
+
+	/**
+	 * @param responseEmail the responseEmail to set
+	 */
+	public void setResponseEmail(Email responseEmail) {
+		this.responseEmail = responseEmail;
+	}
 	
-	private static void printMetaDataDetails(String prefix, PathDetail pDetails) 
-		throws Exception {
-     if(pDetails.getPath() != null) {
-       System.out.println(prefix+"SURL="+ pDetails.getPath());
-     }
-     if(pDetails.getSize() != null) {
-       System.out.println(prefix+"Bytes="+ pDetails.getSize());
-     }
-     if(pDetails.getFileType()  != null) {
-       System.out.println(prefix+"FileType="+pDetails.getFileType());
-     }
-     if(pDetails.getFileStorageType() != null) {
-       System.out.println(prefix+"StorageType="+pDetails.getFileStorageType());
-     }
-     if(pDetails.getStatus() != null) {
-       TReturnStatus rStatus = pDetails.getStatus();
-       TStatusCode code = rStatus.getStatusCode();
-       System.out.println(prefix+"Status="+ code);
-       if(rStatus.getExplanation () != null) {
-         System.out.println(prefix+"Explanation="+ rStatus.getExplanation());
-       }
-     }
-     if(pDetails.getCreatedAtTime() != null) {
-       System.out.println(prefix+"CreatedAtTime");
-       Calendar cal = pDetails.getCreatedAtTime();
-       Date dd = cal.getTime();
-       int year = dd.getYear()+1900;
-       int month = dd.getMonth();
-       int day = dd.getDate();
-       int hour = dd.getHours();
-       int minute = dd.getMinutes();
-       int second = dd.getSeconds();
-       System.out.println(prefix+"\tYear="+ year);
-       System.out.println(prefix+"\tMonth="+ month);
-       System.out.println(prefix+"\tDay="+ day);
-       System.out.println(prefix+"\tHour="+ hour);
-       System.out.println(prefix+"\tMinute="+ minute);
-       System.out.println(prefix+"\tSecond="+ second);
-     }
-     if(pDetails.getLastModificationTime() != null) {
-       System.out.println(prefix+"LastModificationTime");
-       Calendar cal = pDetails.getLastModificationTime();
-       Date dd = cal.getTime();
-       int year = dd.getYear()+1900;
-       int month = dd.getMonth();
-       int day = dd.getDate();
-       int hour = dd.getHours();
-       int minute = dd.getMinutes();
-       int second = dd.getSeconds();
-       System.out.println(prefix+"\tYear="+ year);
-       System.out.println(prefix+"\tMonth="+ month);
-       System.out.println(prefix+"\tDay="+ day);
-       System.out.println(prefix+"\tHour="+ hour);
-       System.out.println(prefix+"\tMinute="+ minute);
-       System.out.println(prefix+"\tSecond="+ second);
-     }
-     if(pDetails.getRetentionPolicyInfo() != null) {
-       TRetentionPolicy retentionPolicy =
-         pDetails.getRetentionPolicyInfo().getRetentionPolicy();
-       TAccessLatency accessLatency =
-         pDetails.getRetentionPolicyInfo().getAccessLatency();
-       if(retentionPolicy != null && retentionPolicy.getValue() != null) {
-          System.out.println(prefix+"RetentionPolicy="+ 
-				retentionPolicy.getValue());
-        }
-        if(accessLatency != null && accessLatency.getValue() != null) {
-          System.out.println(prefix+"AccessLatency="+ accessLatency.getValue());
-        }
-     }
-     if(pDetails.getFileLocality() != null) {
-       System.out.println(prefix+"FileLocality="+
-          pDetails.getFileLocality().getValue());
-     }
-     if(pDetails.getArrayOfSpaceTokens() != null) {
-       ArrayOfString arrayOfString = pDetails.getArrayOfSpaceTokens();
-       String[] sss = arrayOfString.getStringArray();
-       for(int j = 0; j < sss.length; j++) {
-         System.out.println(prefix+"SpaceTokens["+j+"]="+sss[j]);
-       }
-     }
-     if(pDetails.getLifeTimeAssigned()  != null) {
-       Integer ii = pDetails.getLifeTimeAssigned();
-       System.out.println(prefix+"LifeTimeAssigned="+ii.intValue());
-     }
-     if(pDetails.getLifeTimeLeft()  != null) {
-       Integer ii = pDetails.getLifeTimeLeft();
-       System.out.println(prefix+"LifeTimeLeft="+ii.intValue());
-     }
-     if(pDetails.getCheckSumType()  != null) {
-       System.out.println(prefix+"CheckSumType="+pDetails.getCheckSumType());
-     }
-     if(pDetails.getCheckSumValue()  != null) {
-       System.out.println(prefix+"CheckSumValue="+pDetails.getCheckSumValue());
-     }
-     if(pDetails.getOwnerPermission()  != null) {
-       TUserPermission perm = pDetails.getOwnerPermission();
-       System.out.println 
-        (prefix+"OwnerPermission.getUserID="+perm.getUserID());
-       TPermissionMode mode = perm.getMode();
-       if(mode != null) {
-         System.out.println
-          (prefix+"OwnerPermission.getMode="+mode.toString());
-       }
-     }
-     if(pDetails.getGroupPermission()  != null) {
-       TGroupPermission perm = pDetails.getGroupPermission();
-       System.out.println
-        (prefix+"GroupPermission.getUserID="+perm.getGroupID());
-       TPermissionMode mode = perm.getMode();
-       if(mode != null) {
-        System.out.println
-        (prefix+"GroupPermission.getMode="+mode.toString());
-       }
-     }
-     if(pDetails.getOtherPermission()  != null) {
-       TPermissionMode perm = pDetails.getOtherPermission();
-       if(perm != null) {
-         System.out.println
-          (prefix+"OtherPermission.getMode="+perm.toString());
-      }
-     }
-     if(pDetails.getSubPath() != null) {
-        PathDetail[] mp = pDetails.getSubPath();
-        for(int i = 0; i < mp.length; i++) {
-          printMetaDataDetails(prefix+"\t\t\t",mp[i]);
-        }
-     }
-   }
+	
+	public Email getInitialEmail() {
+		return initialEmail;
+	}
+
+	public void setInitialEmail(Email initialEmail) {
+		this.initialEmail = initialEmail;
+	}
+	
+	
+	public String getInitialEmailText() {
+		String text = "";
+		
+		text += "Your request for file(s):\n";
+		
+		for(int i=0;i<this.urls.length;i++) {
+			text += this.urls[i] + "\n";
+		}
+		
+		text += "\n has been submitted to SRM. It may take some time to retreive the" +
+ 		" data. You will receive another email when the data is ready for download along with the download link. " +
+ 		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
+ 		"your request. \n\n";
+		
+		return text;
+	}
+	
+	public String getWgetEmailText() {
+		String text = "";
+		
+		text += "Your request for file(s):\n";
+		
+		for(int i=0;i<this.urls.length;i++) {
+			text += this.urls[i] + "\n";
+		}
+		
+		text += "\n has been successfully retrieved from the deep storage archive.  Please use the attached wget script. \n\n";
+		
+		return text;
+	}
+
+	
+	
 }

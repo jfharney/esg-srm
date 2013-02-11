@@ -28,9 +28,10 @@ public class Email {
 	private String wgetContent;
 	private String scriptFileName;
 	
+	private static boolean isLocalHost = true;
+	
 	public static void main(String [] args) {
 		
-		String [] fileNames = {"http://yahoo.com"};
 		
 		
 		Email e = new Email();
@@ -75,6 +76,10 @@ public class Email {
 		this.fileNames = fileNames;
 	}
 	
+	public void createTextOnlyEmail() {
+		this.fileNames = null;
+	}
+	
 	public void writeWgetContent(String [] fileNames) {
 		
 		this.wgetContent = "";
@@ -87,68 +92,131 @@ public class Email {
 
 	public void sendEmail() {
 		Properties props = new Properties();
-		props.put("mail.smtp.host", EmailUtils.MAIL_SMTP_HOST);
-		props.put("mail.smtp.socketFactory.port", EmailUtils.MAIL_SMTP_PORT);
-		props.put("mail.smtp.socketFactory.class", EmailUtils.MAIL_SMTP_SOCKETFACTORY_CLASS);
-		props.put("mail.smtp.auth", EmailUtils.MAIL_SMTP_AUTH);
-		props.put("mail.smtp.port", EmailUtils.MAIL_SMTP_PORT);
 		
-		Session session = Session.getDefaultInstance(props,
-				new javax.mail.Authenticator() {
-					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(EmailUtils.SENDER_USERNAME,EmailUtils.SENDER_PASSWORD);
-					}
-				});
+		Session session = null;
+		if(!isLocalHost) {
+			props.put("mail.smtp.host", EmailUtils.MAIL_SMTP_HOST);
+			props.put("mail.smtp.socketFactory.port", EmailUtils.MAIL_SMTP_PORT);
+			props.put("mail.smtp.socketFactory.class", EmailUtils.MAIL_SMTP_SOCKETFACTORY_CLASS);
+			props.put("mail.smtp.auth", EmailUtils.MAIL_SMTP_AUTH);
+			props.put("mail.smtp.port", EmailUtils.MAIL_SMTP_PORT);
+			
+			session = Session.getDefaultInstance(props,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(EmailUtils.SENDER_USERNAME,EmailUtils.SENDER_PASSWORD);
+						}
+					});
+			
+			try {
+				 
+				Message message = new MimeMessage(session);
+				//message.setFrom(new InternetAddress("from@no-spam.com"));
+				message.setRecipients(Message.RecipientType.TO,
+						InternetAddress.parse(this.to));
+				message.setSubject(this.headerText);
+				//message.setText(this.bodyText);
 	 
-		try {
-			 
-			Message message = new MimeMessage(session);
-			//message.setFrom(new InternetAddress("from@no-spam.com"));
-			message.setRecipients(Message.RecipientType.TO,
-					InternetAddress.parse(this.to));
-			message.setSubject(this.headerText);
-			//message.setText(this.bodyText);
- 
-			
-			Multipart mp = new MimeMultipart();
-			
-			//this.scriptFileName = this.fileNames[0];
-	    	
-			
-			if(this.fileNames == null) {
-				MimeBodyPart mbp1 = new MimeBodyPart();
-				mbp1.setText(this.bodyText);
-			      //message.setText();
-				mp.addBodyPart(mbp1);
-		    } else {
-		    	MimeBodyPart mbp1 = new MimeBodyPart();
-		    	mbp1.setText(this.bodyText);
-			      
-		    	//message.setText();
-		    	mp.addBodyPart(mbp1);
-			      
-		    	MimeBodyPart mbp2 = new MimeBodyPart();
-		    	FileDataSource fds = new FileDataSource(this.scriptFileName);
+				
+				Multipart mp = new MimeMultipart();
+				
+				
+				if(this.fileNames == null) {
+					MimeBodyPart mbp1 = new MimeBodyPart();
+					mbp1.setText(this.bodyText);
+				      //message.setText();
+					mp.addBodyPart(mbp1);
+			    } else {
+			    	MimeBodyPart mbp1 = new MimeBodyPart();
+			    	mbp1.setText(this.bodyText);
+				      
+			    	//message.setText();
+			    	mp.addBodyPart(mbp1);
+				      
+			    	MimeBodyPart mbp2 = new MimeBodyPart();
+			    	FileDataSource fds = new FileDataSource(this.scriptFileName);
 
-		    	writeFileAttachment();
+			    	writeFileAttachment();
+			    	
+			    	mbp2.setDataHandler(new DataHandler(fds));
+			    	mbp2.setFileName(fds.getName());
+			    	mp.addBodyPart(mbp2);
+				      
+			    }
+				
+				message.setContent(mp);
+
 		    	
-		    	mbp2.setDataHandler(new DataHandler(fds));
-		    	mbp2.setFileName(fds.getName());
-		    	mp.addBodyPart(mbp2);
-			      
-		    }
-			
-			message.setContent(mp);
+				Transport.send(message);
 
-	    	
-			Transport.send(message);
-
-			deleteFileAttachment();
+				deleteFileAttachment();
+				
+	 
+			} catch (MessagingException e) {
+				throw new RuntimeException(e);
+			}
 			
- 
-		} catch (MessagingException e) {
-			throw new RuntimeException(e);
+			
+		} else {
+			props.setProperty("mail.smtp.host","localhost");
+
+		    session = Session.getDefaultInstance(props);
+
+		    
+		    try {
+				 
+				Message message = new MimeMessage(session);
+				//message.setFrom(new InternetAddress("from@no-spam.com"));
+				message.setRecipients(Message.RecipientType.TO,
+						InternetAddress.parse(this.to));
+				message.setSubject(this.headerText);
+				//message.setText(this.bodyText);
+	 
+				
+				Multipart mp = new MimeMultipart();
+				
+				
+				if(this.fileNames == null) {
+					MimeBodyPart mbp1 = new MimeBodyPart();
+					mbp1.setText(this.bodyText);
+				      //message.setText();
+					mp.addBodyPart(mbp1);
+			    } else {
+			    	MimeBodyPart mbp1 = new MimeBodyPart();
+			    	mbp1.setText(this.bodyText);
+				      
+			    	//message.setText();
+			    	mp.addBodyPart(mbp1);
+				      
+			    	MimeBodyPart mbp2 = new MimeBodyPart();
+			    	FileDataSource fds = new FileDataSource(this.scriptFileName);
+
+			    	writeFileAttachment();
+			    	
+			    	mbp2.setDataHandler(new DataHandler(fds));
+			    	mbp2.setFileName(fds.getName());
+			    	mp.addBodyPart(mbp2);
+				      
+			    }
+				
+				message.setContent(mp);
+
+		    	
+				Transport.send(message);
+
+				deleteFileAttachment();
+				
+	 
+			} catch (MessagingException e) {
+				throw new RuntimeException(e);
+			}
+			
+		    
+		    
 		}
+		
+	 
+		
  
 	}
 	

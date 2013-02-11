@@ -62,6 +62,7 @@ import gov.lbl.srm.client.wsdl.*;
 import org.apache.log4j.PropertyConfigurator;
 import org.esgf.legacy.EmailNotifier;
 import org.esgf.legacy.Emailer1;
+import org.esgf.srm.email.Email;
 
 /**
  * @author      Ekhlas Sonu <esonu@uga.edu>
@@ -79,6 +80,9 @@ public class SRMRequestObject {
 	private static String mailPropFile = "./src/java/main/mail.properties"; //"./mail.properties";
 	private static int minSleep = 10;
 	private static int maxSleep = 600;
+	
+	private Email initialEmail;
+	private Email responseEmail;
 	
 	/**
 	 * Constructor                 

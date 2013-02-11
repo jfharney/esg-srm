@@ -28,4 +28,21 @@ public class EmailUtils {
 	//default wget script name
 	public static final String DEFAULT_SCRIPT_FILE_NAME = "wget.sh";
 	
+	
+
+	public static final String DEFAULT_INITIAL_EMAIL_HEADER = 
+			"Your SRM request has been submitted";
+
+	public static final String DEFAULT_INITIAL_EMAIL_BODY = 
+			"Your request for file(s) in link\n"+ "url" +"\n has been submitted to SRM. It may take some time to retreive the" +
+         		" data. You will receive another email when the data is ready for download along with the download link. " +
+         		"\nThe link will be active for about 4 days after which it will be deactivated and you will be asked to resubmit " +
+         		"your request. \n\n";
+	
+
+	public static final String DEFAULT_WGET_EMAIL_HEADER = 
+			"Your SRM request has been completed";
+	
+	public static final String DEFAULT_WGET_EMAIL_BODY = 
+			"";
 }
