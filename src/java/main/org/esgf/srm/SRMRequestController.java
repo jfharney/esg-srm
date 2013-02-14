@@ -25,6 +25,9 @@ public class SRMRequestController {
 
 	private static String SRM_Server_host = "esg.css.ornl.gov";
 	
+	private static int SLEEP_TIME = 100;
+	
+	
 	@RequestMapping(method=RequestMethod.GET, value="/srmrequest")
     public @ResponseBody String getSRMRequest(HttpServletRequest request) throws Exception {
 		
@@ -120,8 +123,25 @@ public class SRMRequestController {
 		
 		SRMRequestObject1 srm = new SRMRequestObject1(urls);
 		
+		
+		System.out.println("Simulating SRM processing...");
+		
+		String [] outputFiles = SRMUtils.simulateSRM(urls);
+		
+		try {
+			Thread.currentThread().sleep(SLEEP_TIME * 10*outputFiles.length);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("\n\nOUTPUT FILES\n\n");
+		for(int i=0;i<outputFiles.length;i++) {
+			System.out.println("Output file: " + i + " " + outputFiles[i]);
+		}
+		
 		//send initial email
-		System.out.println("Sending initial email...");
+		//System.out.println("Sending initial email...\n\n");
 		//srm.sendInitialEmail();
 		
 
@@ -135,17 +155,25 @@ public class SRMRequestController {
 		*/
 		
 		//send the response email
-		System.out.println("Sending response email...");
-		//srm.sendResponseEmail();
+		/*
+		System.out.println("Sending response email...\n\n");
 		//gsiftp://esg2-sdnl1.ccs.ornl.gov//lustre/esgfs/SRM/shared/V.0.0-505553807
 		String returnedFile = "gsiftp://esg2-sdnl1.ccs.ornl.gov//lustre/esgfs/SRM/shared/V.0.0-505553807/t341f02.FAMIPr.cam2.h0.1978-09.nc";
 		
 		
+		returnedFile = SRMUtils.gridftp2http(returnedFile);
 		
+		System.out.println("returnedFile: " + returnedFile + "\n\n");
+
+		//srm.getResponseEma
 		
+		String [] newUrls = new String [1];
+		newUrls[0] = returnedFile;
 		
+		srm.setUrls(newUrls);
 		
-		
+		srm.sendResponseEmail();
+		*/
 		
 		//SRMObj srm = new SRMObj();
 		

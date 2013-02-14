@@ -78,6 +78,14 @@ public class SRMRequestObject1 {
 	private Email responseEmail;
 	
 	private String [] urls;
+	public String[] getUrls() {
+		return urls;
+	}
+
+	public void setUrls(String[] urls) {
+		this.urls = urls;
+	}
+
 	private String [] file_ids;
 	
 	private String [] t_urls;
@@ -139,15 +147,17 @@ public class SRMRequestObject1 {
 	public void sendResponseEmail() {
 		//write and send the wget script email
 		//----
+		System.out.println("In sendresponse email");
 		Email e2 = new Email();
 		e2.setHeaderText(EmailUtils.DEFAULT_WGET_EMAIL_HEADER);
 		e2.setBodyText(this.getWgetEmailText());
 		
-		e2.setFileNames(t_urls);
-		e2.writeWgetContent(t_urls);
+		e2.setFileNames(this.urls);
+		e2.writeWgetContent(this.urls);
 
 		this.setResponseEmail(e2);
 		this.responseEmail.sendEmail();
+		System.out.println("In sendresponse email");
 		//----
 	}
 	
