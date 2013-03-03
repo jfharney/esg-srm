@@ -33,7 +33,7 @@
  * @since       2012-08-07          
  */
 
-package org.esgf.srm;
+package org.esgf.srm.legacy;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -62,6 +62,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.esgf.legacy.EmailNotifier;
 import org.esgf.legacy.Emailer;
 import org.esgf.legacy.Emailer1;
+import org.esgf.srm.SRMResp;
+import org.esgf.srm.SRMUtils;
 import org.esgf.srm.email.Email;
 import org.esgf.srm.email.EmailUtils;
 
@@ -71,7 +73,7 @@ import org.esgf.srm.email.EmailUtils;
  * @since       2012-08-07          
  */
 
-public class SRMRequestObject1 {
+public class SRMRequestObject2 {
 	
 	
 	private Email initialEmail;
@@ -108,7 +110,7 @@ public class SRMRequestObject1 {
 	private static int maxSleep = 600;
 	*/
 	
-	public SRMRequestObject1() {
+	public SRMRequestObject2() {
 		this.urls = null;
 		//this.file_ids = null;
 		this.t_urls = null;
@@ -119,7 +121,7 @@ public class SRMRequestObject1 {
 		
 	}
 	
-	public SRMRequestObject1(String [] urls,String file_request_type) {
+	public SRMRequestObject2(String [] urls,String file_request_type) {
 		this.urls = urls;
 		//this.file_ids = file_ids;
 		this.t_urls = null;
@@ -229,29 +231,6 @@ public class SRMRequestObject1 {
 		    req.setRetentionPolicy(retentionPolicy);
 		    req.setAccessLatency(accessLatency);
 		    System.out.println("Submitting...\n\n");
-		    
-		    System.out.println("\n\nOLD IMPLEMENTATION");
-			
-		    String str = "";
-			
-			str += "uid: " + uid + "\n";
-			str += "logPath: " + logPath + "\n";
-			str += "log4jlocation: " + log4jlocation + "\n";
-			str += "storageInfo: " + storageInfo + "\n";
-			str += "fileType: " + fileType + "\n";
-			str += "retentionPolicy: " + retentionPolicy + "\n";
-			str += "accessLatency: " + accessLatency + "\n";
-			str += "debug: " + debug + "\n";
-			str += "delegationNeeded: " + delegationNeeded + "\n";
-			for(int i=0;i<surl.length;i++) {
-				str += "file_url: " + surl[i] + "\n";
-			}
-			str += "server_url: " + serverUrl;
-
-			System.out.println(str);
-			
-		    System.out.println("\n\nEND OLD IMPLEMENTATION\n\n\n\n");
-		    
 		    req.submit();
 		    
 		    req.checkStatus();
@@ -342,12 +321,17 @@ public class SRMRequestObject1 {
 	    	e.printStackTrace();
 	    }
 			
+		
+			
+	    
+	    
+	    
+		
+		System.out.println("ReturnStr: " + retStr);
 			
 		if(retStr != null) {
 			String [] response_urls = retStr.split(";");
 			
-			
-			//determine the url name
 			if(this.file_request_type.equals("http")) {
 				
 				response_urls = SRMUtils.gridftp2httpArr(response_urls);

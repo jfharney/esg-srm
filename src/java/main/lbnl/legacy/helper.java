@@ -1,4 +1,4 @@
-package lbnl;
+package lbnl.legacy;
 
 import java.util.Properties;
 import javax.security.auth.login.*;
@@ -15,6 +15,7 @@ import org.globus.axis.util.Util;
  
 public class helper {
 
+	/*
     public static org.apache.axis.types.URI createTSURL(String surl) {
 	try {
 	    return new org.apache.axis.types.URI(surl);
@@ -179,30 +180,30 @@ System.out.println("Hello");
 
 	    //
 	    //
-/*
-	    String src = "gsiftp://data3.lbl.gov//tmp/test.data";
-	    System.out.println(" prepare to get "+src);
-	    SrmPrepareToGetRequest r = new SrmPrepareToGetRequest();
-	    int size = 1; // one pair of src/tgt here
-	    TGetFileRequest[] fileReqList = new TGetFileRequest[size];
+//
+//	    String src = "gsiftp://data3.lbl.gov//tmp/test.data";
+//	    System.out.println(" prepare to get "+src);
+//	    SrmPrepareToGetRequest r = new SrmPrepareToGetRequest();
+//	    int size = 1; // one pair of src/tgt here
+//	    TGetFileRequest[] fileReqList = new TGetFileRequest[size];
 
-	    fileReqList[0] = new TGetFileRequest();
-	    fileReqList[0].setSourceSURL(helper.createTSURL(src));
-	    //fileReqList[0].setTargetSURL(helper.createTSURL(tgt));
+//	    fileReqList[0] = new TGetFileRequest();
+//	    fileReqList[0].setSourceSURL(helper.createTSURL(src));
+//	    //fileReqList[0].setTargetSURL(helper.createTSURL(tgt));
 
-	    ArrayOfTGetFileRequest col = new ArrayOfTGetFileRequest();
-	    col.setRequestArray(fileReqList);
-	    r.setArrayOfFileRequests(col);
+//	    ArrayOfTGetFileRequest col = new ArrayOfTGetFileRequest();
+//	    col.setRequestArray(fileReqList);
+//	    r.setArrayOfFileRequests(col);
 
-	    SrmPrepareToGetResponse getResponse = srm.getStub().srmPrepareToGet(r);
-	    System.out.println(" response = "+getResponse);
-*/	    
+//	    SrmPrepareToGetResponse getResponse = srm.getStub().srmPrepareToGet(r);
+//	    System.out.println(" response = "+getResponse);
+//	    
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    //return "Error: unable to locate proxy path";
 	}
     }
-
+*/
 }
 
 

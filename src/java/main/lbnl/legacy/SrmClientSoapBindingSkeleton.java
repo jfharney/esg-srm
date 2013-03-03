@@ -5,23 +5,24 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package lbnl;
+package lbnl.legacy;
 
-public class SrmClientSoapBindingSkeleton implements lbnl.SrmClient, org.apache.axis.wsdl.Skeleton {
-    private lbnl.SrmClient impl;
+public class SrmClientSoapBindingSkeleton implements lbnl.legacy.SrmClient, org.apache.axis.wsdl.Skeleton {
+	/*
+    private lbnl.legacy.SrmClient impl;
     private static java.util.Map _myOperations = new java.util.Hashtable();
     private static java.util.Collection _myOperationsList = new java.util.ArrayList();
 
-    /**
-    * Returns List of OperationDesc objects with this name
-    */
+   //
+    // Returns List of OperationDesc objects with this name
+    //
     public static java.util.List getOperationDescByName(java.lang.String methodName) {
         return (java.util.List)_myOperations.get(methodName);
     }
 
-    /**
-    * Returns Collection of OperationDescs
-    */
+    //
+    // Returns Collection of OperationDescs
+    //
     public static java.util.Collection getOperationDescs() {
         return _myOperationsList;
     }
@@ -72,10 +73,10 @@ public class SrmClientSoapBindingSkeleton implements lbnl.SrmClient, org.apache.
     }
 
     public SrmClientSoapBindingSkeleton() {
-        this.impl = new lbnl.SrmClientSoapBindingImpl();
+        this.impl = new lbnl.legacy.SrmClientSoapBindingImpl();
     }
 
-    public SrmClientSoapBindingSkeleton(lbnl.SrmClient impl) {
+    public SrmClientSoapBindingSkeleton(lbnl.legacy.SrmClient impl) {
         this.impl = impl;
     }
     public java.lang.String srmPing(java.lang.String in0) throws java.rmi.RemoteException
@@ -95,5 +96,5 @@ public class SrmClientSoapBindingSkeleton implements lbnl.SrmClient, org.apache.
         java.lang.String ret = impl.srmGet(in0, in1);
         return ret;
     }
-
+*/
 }

@@ -1,4 +1,4 @@
-package lbnl;
+package lbnl.legacy;
 
 //import javax.xml.rpc.Stub;
 
@@ -25,6 +25,7 @@ import java.net.URL;
 import org.globus.axis.util.Util;
 
 public class TSRMStubHolder {
+	/*
     private ISRM _srmStub = null;
 
     public TSRMStubHolder (String endPoint) {
@@ -126,4 +127,5 @@ public class TSRMStubHolder {
 	}
 
     }
+    */
 }

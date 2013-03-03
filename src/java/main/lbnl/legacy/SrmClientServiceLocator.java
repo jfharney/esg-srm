@@ -5,10 +5,11 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package lbnl;
+package lbnl.legacy;
 
-public class SrmClientServiceLocator extends org.apache.axis.client.Service implements lbnl.SrmClientService {
+public class SrmClientServiceLocator extends org.apache.axis.client.Service implements lbnl.legacy.SrmClientService {
 
+	/*
     public SrmClientServiceLocator() {
     }
 
@@ -39,7 +40,7 @@ public class SrmClientServiceLocator extends org.apache.axis.client.Service impl
         SrmClientWSDDServiceName = name;
     }
 
-    public lbnl.SrmClient getSrmClient() throws javax.xml.rpc.ServiceException {
+    public lbnl.legacy.SrmClient getSrmClient() throws javax.xml.rpc.ServiceException {
        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(SrmClient_address);
@@ -50,9 +51,9 @@ public class SrmClientServiceLocator extends org.apache.axis.client.Service impl
         return getSrmClient(endpoint);
     }
 
-    public lbnl.SrmClient getSrmClient(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
+    public lbnl.legacy.SrmClient getSrmClient(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
-            lbnl.SrmClientSoapBindingStub _stub = new lbnl.SrmClientSoapBindingStub(portAddress, this);
+            lbnl.legacy.SrmClientSoapBindingStub _stub = new lbnl.legacy.SrmClientSoapBindingStub(portAddress, this);
             _stub.setPortName(getSrmClientWSDDServiceName());
             return _stub;
         }
@@ -65,15 +66,15 @@ public class SrmClientServiceLocator extends org.apache.axis.client.Service impl
         SrmClient_address = address;
     }
 
-    /**
-     * For the given interface, get the stub implementation.
-     * If this service has no port for the given interface,
-     * then ServiceException is thrown.
-     */
+    ///
+    //For the given interface, get the stub implementation.
+    // If this service has no port for the given interface,
+    // then ServiceException is thrown.
+    //
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
-            if (lbnl.SrmClient.class.isAssignableFrom(serviceEndpointInterface)) {
-                lbnl.SrmClientSoapBindingStub _stub = new lbnl.SrmClientSoapBindingStub(new java.net.URL(SrmClient_address), this);
+            if (lbnl.legacy.SrmClient.class.isAssignableFrom(serviceEndpointInterface)) {
+                lbnl.legacy.SrmClientSoapBindingStub _stub = new lbnl.legacy.SrmClientSoapBindingStub(new java.net.URL(SrmClient_address), this);
                 _stub.setPortName(getSrmClientWSDDServiceName());
                 return _stub;
             }
@@ -84,11 +85,11 @@ public class SrmClientServiceLocator extends org.apache.axis.client.Service impl
         throw new javax.xml.rpc.ServiceException("There is no stub implementation for the interface:  " + (serviceEndpointInterface == null ? "null" : serviceEndpointInterface.getName()));
     }
 
-    /**
-     * For the given interface, get the stub implementation.
-     * If this service has no port for the given interface,
-     * then ServiceException is thrown.
-     */
+    //
+    // For the given interface, get the stub implementation.
+    // If this service has no port for the given interface,
+    // then ServiceException is thrown.
+    //
     public java.rmi.Remote getPort(javax.xml.namespace.QName portName, Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         if (portName == null) {
             return getPort(serviceEndpointInterface);
@@ -118,9 +119,9 @@ public class SrmClientServiceLocator extends org.apache.axis.client.Service impl
         return ports.iterator();
     }
 
-    /**
-    * Set the endpoint address for the specified port name.
-    */
+    //
+    //Set the endpoint address for the specified port name.
+    //
     public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
         
 if ("SrmClient".equals(portName)) {
@@ -132,11 +133,11 @@ if ("SrmClient".equals(portName)) {
         }
     }
 
-    /**
-    * Set the endpoint address for the specified port name.
-    */
+    //
+    // Set the endpoint address for the specified port name.
+    //
     public void setEndpointAddress(javax.xml.namespace.QName portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
         setEndpointAddress(portName.getLocalPart(), address);
     }
-
+	*/
 }

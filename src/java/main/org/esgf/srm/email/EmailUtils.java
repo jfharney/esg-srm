@@ -10,9 +10,32 @@ public class EmailUtils {
 	public static String MAIL_SMTP_AUTH = "true";
 	public static String MAIL_SMTP_PORT = "465";
 
-	//account params (will take out later)
-	public static String SENDER_USERNAME = "jfharney";
-	public static String SENDER_PASSWORD = "1Ring2RuleThemAll";
+	//default from
+	public static String DEFAULT_FROM = "esgf-user@lists.llnl.gov";
+	
+	//default to
+	public static String DEFAULT_TO = "jfharney@gmail.com";
+
+	//default header text
+	public static String DEFAULT_HEADER_TEXT = "Default Header";
+	
+	//default body text
+	public static String DEFAULT_BODY_TEXT = "Default body";
+	
+	
+	//default file names
+	public static String [] DEFAULT_FILE_IDS = {"file_id1","file_id2"};
+	
+	//default url names 
+	public static String [] DEFAULT_FILE_URLS = {"file_url1","file_url2"};
+	
+
+	
+	/*
+	
+	
+	
+	
 	
 	//receiver
 	public static String RECEIVER_USERNAME = "jfharney@gmail.com";
@@ -45,4 +68,5 @@ public class EmailUtils {
 	
 	public static final String DEFAULT_WGET_EMAIL_BODY = 
 			"";
+			*/
 }

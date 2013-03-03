@@ -33,7 +33,7 @@
  * @since       2012-08-07          
  */
 
-package org.esgf.srm;
+package org.esgf.srm.legacy;
 
 
 import java.io.BufferedWriter;
@@ -71,6 +71,7 @@ import org.esgf.srm.email.Email;
  */
 
 public class SRMRequestObject {
+	/*
 	private String openId;
 	private String proxyId;
 	private String proxyPwd;
@@ -83,6 +84,7 @@ public class SRMRequestObject {
 	
 	private Email initialEmail;
 	private Email responseEmail;
+	*/
 	
 	/**
 	 * Constructor                 
@@ -95,7 +97,7 @@ public class SRMRequestObject {
 	 * @param  request The HttpServletRequest object containing parameters 
 	 * 
 	 */
-	
+	/*
 	public SRMRequestObject(HttpServletRequest request){
 		this.openId = request.getParameter("openid");
 		
@@ -137,7 +139,8 @@ public class SRMRequestObject {
 			System.out.println("NULL to email id");
 		}
 	}
-	
+	*/
+	/*
 	public String getOpenId() {
 		return openId;
 	}
@@ -168,11 +171,12 @@ public class SRMRequestObject {
 	public void setToemail(String toemail) {
 		this.mailTo = toemail;
 	}
-
+	*/
 	/**
 	 * Send confirmation of submission of SRM get request                
 	 *
 	 */
+	/*
 	private void sendSubmissionConfirmation(){
 		String subject = "Your request has been submitted.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been submitted to SRM. It may take some time to retreive the" +
@@ -181,11 +185,12 @@ public class SRMRequestObject {
          		"your request. \n\nThanks.";
         sendEmail(subject, body);
 	}
-	
+	*/
 	/**
 	 * Send confirmation after the request has been executed               
 	 *
 	 */
+	/*
 	private void sendRequestCompletion(String turl){
 		String subject = "Your request has been completed successfuly.";
 		String body = "Your request for file(s) in link\n"+ url +"\n has been retreived successfully from SRM. You may download the " +
@@ -194,12 +199,13 @@ public class SRMRequestObject {
          		"your request. \n\nThanks.";
         sendEmail(subject, body);
 	}
-	
+	*/
 	
 	/**
 	 * Send notification if the request failed execute for any reason              
 	 *
 	 */
+	/*
 	private void sendRequestFailed(String status){
 		String subject = "Your request could not be completed.";
 		String body = "Your request for file(s) in link\n"+ url +"\n could not be completed by SRM. The reason for the failure was " +
@@ -207,6 +213,7 @@ public class SRMRequestObject {
 						"\n\nThanks.";
         sendEmail(subject, body);
 	}
+	*/
 	
 	/**
 	 * Send email
@@ -217,7 +224,7 @@ public class SRMRequestObject {
 	 * @param subject subject of the email
 	 * @param body the body of the email
 	 */
-	
+	/*
 	private void sendEmail(String subject, String body){
 		String to = this.mailTo;
 		String host="smtp.ornl.gov";
@@ -287,7 +294,7 @@ public class SRMRequestObject {
 	    	e.printStackTrace();
 	    }
 	}
-	
+	*/
 	
 	/**
 	 * Run BeStMan GET request to extract the file at url from SRM server
@@ -299,18 +306,13 @@ public class SRMRequestObject {
 	 *
 	 *@return retStr url of the retrieved file in the cache or failure message
 	 */
-	
+	/*
 	@SuppressWarnings("static-access")
 	public String runBeStManGetRequest() throws Exception{
 
-		/**
-		 * The return value. Initially assume that connection to server failed
-		 */
+		
 		String retStr = "<srm_error>SRMInitializationError</srm_error>";
-	    
-		/**
-		 * The following variables and subsequent code is adopted from the BeStMan api
-		 */
+	   
 	    String serverUrl = "";
 	    String uid="";
 	    String logPath="/tmp/esg-srm.log";
@@ -322,10 +324,10 @@ public class SRMRequestObject {
 	    boolean debug = false;
 	    boolean delegationNeeded=false;
 	    
-	    /**
-	     * This part is necessary but currently throws an exception. 
-	     * The exception is ignored.
-	     */
+	    //
+	    // This part is necessary but currently throws an exception. 
+	    // The exception is ignored.
+	    //
 	    String ttemp = System.getProperty("log4j.configuration");
 	    System.out.println("ttemp = "+ ttemp);
 	    if(ttemp != null && !ttemp.equals("")) {
@@ -335,9 +337,9 @@ public class SRMRequestObject {
 //	    FileWriter logFile = new FileWriter("/tmp/esg-srm-log.out", true);
 //	    BufferedWriter outLogFile = new BufferedWriter(logFile);
 	    
-	    /**
-	     * Changed this portion to handle multiple urls
-	     */
+	    //
+	    // Changed this portion to handle multiple urls
+	    //
 	    StringTokenizer st = new StringTokenizer(url,";");
 	    
 	    String[] surl = new String[st.countTokens()];
@@ -356,11 +358,11 @@ public class SRMRequestObject {
 	       return retStr;
 	    }
 	    
-	    /**
-	     * The server of the url is the part of the first SURL 
-	     * that appears before the ? sign.
-	     * 
-	     */
+	    //
+	    // The server of the url is the part of the first SURL 
+	    // that appears before the ? sign.
+	    // 
+	    //
 	    serverUrl = url.substring(0, url.indexOf("?"));
 	    
 	    System.out.println("Server URL = "+serverUrl);
@@ -500,10 +502,10 @@ public class SRMRequestObject {
 	    
 	    StringTokenizer st2 = new StringTokenizer(retStr,";");
 	    
-	    /**
-	     * Used to store the local location of the files on the server cache
-	     * 
-	     */
+	    ///
+	    // Used to store the local location of the files on the server cache
+	    // 
+	    //
 	    
 	    ArrayList<String> serverFileLocation = new ArrayList<String>();
 	    
@@ -522,7 +524,7 @@ public class SRMRequestObject {
 	    
 		return ("<srm_url>"+retStr+"</srm_url>");
 	}
-	
+	*/
 	
 	/**
 	 * Run BeStMan Ls request 
@@ -536,7 +538,7 @@ public class SRMRequestObject {
 	 *
 	 *@return retStr Currently doen't contain any information except if error occurs
 	 */
-	
+	/*
 	@SuppressWarnings("static-access")
 	public String runBeStManLsRequest() throws Exception{
 
@@ -663,12 +665,13 @@ public class SRMRequestObject {
 	    
 		return retStr;
 	}
-
+	*/
+	
 	/**
 	 * This was a part of SRMDirTest.java file in BeStMan api. 
 	 * @see https://codeforge.lbl.gov/frs/download.php/178/bestman2.java.api-2.0.0.tar.gz
 	 */
-	
+	/*
 	private static void printMetaDataDetails(String prefix, PathDetail pDetails) 
 		throws Exception {
      if(pDetails.getPath() != null) {
@@ -796,5 +799,7 @@ public class SRMRequestObject {
           printMetaDataDetails(prefix+"\t\t\t",mp[i]);
         }
      }
+     
    }
+   */
 }

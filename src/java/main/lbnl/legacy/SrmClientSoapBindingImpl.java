@@ -5,13 +5,13 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package lbnl;
+package lbnl.legacy;
 
 import gov.lbl.srm.StorageResourceManager.*;
 
 
-public class SrmClientSoapBindingImpl implements lbnl.SrmClient{
-
+public class SrmClientSoapBindingImpl implements lbnl.legacy.SrmClient{
+/*
     public static void main(String [] args) {
        System.out.println("Hello");
 
@@ -58,9 +58,7 @@ public class SrmClientSoapBindingImpl implements lbnl.SrmClient{
 
 	    System.out.println("return code="+code+", exp="+exp);
 
-	    /*if (code == TStatusCode.SRM_REQUEST_QUEUED) {
-		// wait forever
-	    }*/
+	    
 	    return result.getRequestToken();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -152,4 +150,5 @@ public class SrmClientSoapBindingImpl implements lbnl.SrmClient{
 	    return "Error: unable to call srmPing";
 	}
     }
+    */
 }

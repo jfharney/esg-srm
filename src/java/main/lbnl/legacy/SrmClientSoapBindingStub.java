@@ -5,9 +5,10 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package lbnl;
+package lbnl.legacy;
 
-public class SrmClientSoapBindingStub extends org.apache.axis.client.Stub implements lbnl.SrmClient {
+public class SrmClientSoapBindingStub extends org.apache.axis.client.Stub implements lbnl.legacy.SrmClient {
+	/*
     private java.util.Vector cachedSerClasses = new java.util.Vector();
     private java.util.Vector cachedSerQNames = new java.util.Vector();
     private java.util.Vector cachedSerFactories = new java.util.Vector();
@@ -207,5 +208,5 @@ public class SrmClientSoapBindingStub extends org.apache.axis.client.Stub implem
   throw axisFaultException;
 }
     }
-
+*/
 }
