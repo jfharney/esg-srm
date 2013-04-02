@@ -99,11 +99,11 @@
 
   <!-- initialization and preparation -->
   <target name="-pre-init" unless="build.master">
-<!--
-    <property name="build.compiler" value="javac1.6"/>
+
+    <property name="build.compiler" value="javac1.5"/>
     <property name="build.compiler.emacs" value="true"/>
     <echo message="set build.compiler to ${build.compiler}"/>
--->
+
   </target>  
 
   <target name="init" description="initialization" depends="-pre-init" unless="build.master">
