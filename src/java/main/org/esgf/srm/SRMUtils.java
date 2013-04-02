@@ -6,7 +6,7 @@ import java.net.URL;
 
 public class SRMUtils {
 
-	public static String THREDDS_DATAROOT = "/thredds/fileServer/esg_dataroot/";
+	public static String THREDDS_DATAROOT = "/thredds/fileServer/esg_srm_dataroot";
 	
 	public static String SRM_CACHE_REPLACE = "/SRMTemp/";
 
@@ -31,7 +31,7 @@ public class SRMUtils {
 		
 		http = http.replace("gsiftp", "http");
 		
-		http = http.replace("//lustre/esgfs/", THREDDS_DATAROOT);
+		http = http.replace("//lustre/esgfs/SRMTemp", THREDDS_DATAROOT);
 		
 		
 		return http;
@@ -106,7 +106,8 @@ public class SRMUtils {
 			File f = new File(tempFile);
 			String fileName = f.getName();
 			
-			String outputFile = "gsiftp://esg.ccs.ornl.gov:2811//lustre/esgfs/SRM/" + fileName;
+			//String outputFile = "gsiftp://esg.ccs.ornl.gov:2811//lustre/esgfs/SRM/" + fileName;
+			String outputFile = "gsiftp://esg.ccs.ornl.gov:2811//lustre/esgfs/" + fileName;
 			
 			outputFiles[i] = outputFile;
 		}
@@ -159,12 +160,17 @@ public class SRMUtils {
 					 "SFN=mss://esg2-sdnl1.ccs.ornl.gov//proj/cli049/UHRGCS/ORNL/CESM1/" +
 				     "t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-09.nc";
 		
+		String gridftp = "gsiftp://esg.ccs.ornl.gov//lustre/esgfs/SRMTemp/shared/V.0.0-730290723/t341f02.FAMIPr.cam2.h0.1978-10.nc";
+		
+		String ftp = gridftp2http(gridftp);
+		System.out.println("ftp: " + ftp);
+		/*
 		String [] srm_urls = new String [1];
 		
 		srm_urls[0] = url;
 		
 		System.out.println(extractFileName(url));
-		/*
+		
 		SRMResponse srm_response = new SRMResponse();
 		
 		srm_response = simulateSRM(srm_urls);

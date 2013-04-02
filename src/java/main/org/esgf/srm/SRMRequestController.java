@@ -33,7 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class SRMRequestController {
 
 	
-	private static boolean isProduction = true;
+	private static boolean isProduction = false;
 
 	private static boolean serviceTest = false;
 	
@@ -87,9 +87,12 @@ public class SRMRequestController {
 		
 		String [] file_urls = null; 
 		
+		System.out.println("Length: " + length);
+		
 		if(length.equals("1")) {
 			file_urls = new String[1];
 			String file_url = request.getParameter("url");
+			System.out.println("file_url: " + file_url);
 			file_urls[0] = file_url;
 		} 
 		else {
@@ -100,204 +103,39 @@ public class SRMRequestController {
 			}
 		}
 
-		if(!oldImpl) {
 			
-			System.out.println("running..." + isProduction);
-			
-			if(isProduction) {
-				this.bestman.get();
-				
-				//send the response from bestman
-				this.srm_response = this.bestman.getSrm_response();
-				
-				System.out.println("\nSRM RESPONSE\n\n" + this.srm_response.toXML() + "\n\n\n");
-			} else {
-				srm_response = SRMUtils.simulateSRM(file_urls);
-			}
-			
-			
-			//if(this.file_request_type.equals("http")) {
-				//String [] response_urls = SRMUtils.gridftp2httpArr(srm_response.getResponse_urls());
-				
-				//replace the cache names here
-				//response_urls = SRMUtils.replaceCacheNames(response_urls);
-				
-				//srm_response.setResponse_urls(response_urls);
-			//}
-			
-			//this.writeConfirmEmail();
-			/*
-			
-			if(file_urls != null) {
-			
-				if(isProduction) {
-					
-					//write first email
-					this.writeInitialEmail();
-					
-					this.bestman.get();
-					
-					//send the response from bestman
-					this.srm_response = this.bestman.getSrm_response();
-					
-					System.out.println(this.srm_response);
-
-					//write confirmation email
-					this.writeConfirmationEmail();
-					
-				} else {
-
-					this.writeInitialEmail();
-					
-					srm_response = SRMUtils.simulateSRM(file_urls);
-					String [] response_urls = SRMUtils.gridftp2httpArr(srm_response.getResponse_urls());
-					
-					//replace the cache names here
-					response_urls = SRMUtils.replaceCacheNames(response_urls);
-					
-					//replace the gridftp endpoint (if needed)
-					if(file_request_type.equals("http")) {
-						srm_response.setResponse_urls(response_urls);
-					}
-
-					System.out.println(srm_response);
-
-					this.writeConfirmationEmail();
-
-					
-				}//end if Production
-				
-				
-				
-				
-			} //end if file_urls == null
-			*/
-			
-		} else {
-			
-			/*
-			this.runOldImpl(file_urls);
-			*/
-			
-			
+		System.out.println("running in production?..." + isProduction);
+		
+		for(int i=0;i<file_urls.length;i++) {
+			System.out.println("file_url: " + i + " " + file_urls[i]);
 		}
+		
+		this.bestman = new Bestman(file_urls);
+		if(isProduction) {
+			System.out.println(this.bestman.toString());
+			this.bestman.get();
+			
+			//send the response from bestman
+			this.srm_response = this.bestman.getSrm_response();
+			
+			System.out.println("\nSRM RESPONSE\n\n" + this.srm_response.toXML() + "\n\n\n");
+		} else {
+			srm_response = SRMUtils.simulateSRM(file_urls);
+		}
+		
+		
+			
 		if(srm_response == null) {
 			return "<srm_response>" + Utils.responseMessage + "</srm_response>";
 		} else {
-			return srm_response.toXML();
+			
+			//System.out.println(new XmlFormatter().format(srm_response.toXML()) + "\n");
+			return new XmlFormatter().format(srm_response.toXML()) + "\n";
 		}
 		
 	}
 	
 	
-	private void runOldImpl(String [] file_urls) {
-
-		//dbug
-		this.srm_request = new SRMReq(file_urls);
-		
-		
-		this.bestman = new Bestman(this.srm_request);
-		
-		
-		
-		//run srm workflow
-		if(file_urls != null) {
-
-			//first email
-			//System.out.println("Sending initial email");
-			
-			Email email1 = new Email();
-			Attachment attachment1 = new Attachment();
-			attachment1.setAttachmentName("wget.sh");
-			attachment1.setAttachmentContent("New wget content");
-			email1.setAttachment(attachment1);
-			email1.setHeaderText("EMAIL1");
-			email1.setBodyText("EMAILBODY1 - sent from srm request controller");
-			
-			if(isProduction) {
-				email1.sendEmail();
-			} else {
-				System.out.println(email1);
-			}
-			
-			
-			
-			SRMRequestObject1 srm = new SRMRequestObject1(file_urls,file_request_type);
-			
-			
-			SRMResp srm_response = null;
-			if(isProduction) {
-				System.out.println("About to send request to bestman...");
-				
-				try {
-					srm_response = srm.runBeStManGetRequest();
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-
-				System.out.println("Simulating SRM processing...");
-				
-				if(file_urls != null) {
-					
-					srm_response = SRMUtils.simulateSRM(file_urls);
-					String [] response_urls = SRMUtils.gridftp2httpArr(srm_response.getResponse_urls());
-					
-					
-					response_urls = SRMUtils.replaceCacheNames(response_urls);
-					
-					if(file_request_type.equals("http")) {
-						srm_response.setResponse_urls(response_urls);
-					}
-					
-				} 
-				System.out.println(srm_response);
-				
-			}
-			
-			
-			
-			
-			
-			//second email
-			Email email2 = new Email();
-			
-			//assemble the header text here
-			email2.setHeaderText("EMAIL2");
-			
-			//assemble the body text here
-			String bodyText = "EMAILBODY2 - from srm controller\n";
-			bodyText += srm_response.getMessage();
-			email2.setBodyText(bodyText);
-			
-			//if there are no urls, dont send the attachment, just the message
-			if(srm_response.getResponse_urls() != null) {
-				Attachment attachment2 = new Attachment();
-				attachment2.setAttachmentName("wget.sh");
-				String wgetContent = "";
-				for(int i=0;i<srm_response.getResponse_urls().length;i++) {
-					wgetContent += "wget " + srm_response.getResponse_urls()[i] + "\n";
-				}
-				attachment2.setAttachmentContent(wgetContent);
-				email2.setAttachment(attachment2);
-			}
-			
-			if(isProduction) {
-				email2.sendEmail();
-			} else {
-				System.out.println(email2);
-			}
-			
-		}
-	}
-	
-	
-	
-	@RequestMapping(method=RequestMethod.DELETE, value="/srmrequest")
-	public @ResponseBody void removeEmployee(HttpServletRequest request) {
-		System.out.println("In removeSRMRequest");
-		
-	}
 	
 	/**
 	 * For testing purpose only      
@@ -373,8 +211,6 @@ public class SRMRequestController {
 
 		} else {
 			
-			
-			System.out.println("Executable test");
 			
 			String [] url = {
 								"srm://esg2-sdnl1.ccs.ornl.gov:46790/srm/v2/server?SFN=mss://esg2-sdnl1.ccs.ornl.gov//proj/cli049/UHRGCS/ORNL/CESM1/t341f02.FAMIPr/atm/hist/t341f02.FAMIPr.cam2.h0.1978-10.nc",
@@ -579,6 +415,108 @@ public class SRMRequestController {
 
 
 
+/*
+private void runOldImpl(String [] file_urls) {
+
+	//dbug
+	this.srm_request = new SRMReq(file_urls);
+	
+	
+	this.bestman = new Bestman(this.srm_request);
+	
+	
+	
+	//run srm workflow
+	if(file_urls != null) {
+
+		//first email
+		//System.out.println("Sending initial email");
+		
+		Email email1 = new Email();
+		Attachment attachment1 = new Attachment();
+		attachment1.setAttachmentName("wget.sh");
+		attachment1.setAttachmentContent("New wget content");
+		email1.setAttachment(attachment1);
+		email1.setHeaderText("EMAIL1");
+		email1.setBodyText("EMAILBODY1 - sent from srm request controller");
+		
+		if(isProduction) {
+			email1.sendEmail();
+		} else {
+			System.out.println(email1);
+		}
+		
+		
+		
+		SRMRequestObject1 srm = new SRMRequestObject1(file_urls,file_request_type);
+		
+		
+		SRMResp srm_response = null;
+		if(isProduction) {
+			System.out.println("About to send request to bestman...");
+			
+			try {
+				srm_response = srm.runBeStManGetRequest();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+
+			System.out.println("Simulating SRM processing...");
+			
+			if(file_urls != null) {
+				
+				srm_response = SRMUtils.simulateSRM(file_urls);
+				String [] response_urls = SRMUtils.gridftp2httpArr(srm_response.getResponse_urls());
+				
+				
+				response_urls = SRMUtils.replaceCacheNames(response_urls);
+				
+				if(file_request_type.equals("http")) {
+					srm_response.setResponse_urls(response_urls);
+				}
+				
+			} 
+			System.out.println(srm_response);
+			
+		}
+		
+		
+		
+		
+		
+		//second email
+		Email email2 = new Email();
+		
+		//assemble the header text here
+		email2.setHeaderText("EMAIL2");
+		
+		//assemble the body text here
+		String bodyText = "EMAILBODY2 - from srm controller\n";
+		bodyText += srm_response.getMessage();
+		email2.setBodyText(bodyText);
+		
+		//if there are no urls, dont send the attachment, just the message
+		if(srm_response.getResponse_urls() != null) {
+			Attachment attachment2 = new Attachment();
+			attachment2.setAttachmentName("wget.sh");
+			String wgetContent = "";
+			for(int i=0;i<srm_response.getResponse_urls().length;i++) {
+				wgetContent += "wget " + srm_response.getResponse_urls()[i] + "\n";
+			}
+			attachment2.setAttachmentContent(wgetContent);
+			email2.setAttachment(attachment2);
+		}
+		
+		if(isProduction) {
+			email2.sendEmail();
+		} else {
+			System.out.println(email2);
+		}
+		
+	}
+}
+*/
 
 
 

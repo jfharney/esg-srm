@@ -43,6 +43,8 @@ public class SRMReq {
     	
     	this.file_urls = new String [file_urls.length];
     	for(int i=0;i<file_urls.length;i++) {
+    		System.out.println("i: " + i);
+    		System.out.println("\t" + file_urls[i]);
     		this.file_urls[i] = SRMUtils.transformServerName(file_urls[i]);
     	}
     	this.setServer_url(SRMUtils.extractServerName(this.file_urls[0]));

@@ -56,10 +56,10 @@ public class Bestman {
 		    							 this.srm_request.isDelegationNeeded());
 		    
 		    
-		    System.out.println("Credential name: " + cc.getCredential().getName());
-		    System.out.println("Server url: " + this.srm_request.getServer_url());
+		    //System.out.println("Credential name: " + cc.getCredential().getName());
+		    //System.out.println("Server url: " + this.srm_request.getServer_url());
 		    
-		    System.out.println("CC Initialized");
+		    //System.out.println("CC Initialized");
 //		    outLogFile.write("CC Initialized"+"\n");
 		    cc.connect(this.srm_request.getServer_url());
 		    System.out.println("Connection Established");
@@ -79,7 +79,7 @@ public class Bestman {
 		    req.setAccessLatency(this.srm_request.getAccessLatency());
 		    System.out.println("Submitting...\n\n");
 		    
-		    System.out.println(this.toString());
+		    //System.out.println(this.toString());
 		    
 		    req.submit();
 		    
