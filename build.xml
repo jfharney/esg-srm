@@ -7,411 +7,444 @@
 
 -->
 
-<project name="esg-srm" default="make" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="esg-srm" default="init" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
   <property name="module" value="esg-srm" />
   <property name="organization" value="Earth Systems Grid Federation" />
 
-<!--
-  Global Initialization and Prepartation...
--->
+	
+	<!--
+	      ************************************************************
+	      Global Initialization and Preparation....
+	      ************************************************************
+	    -->
 
-    <property file="${user.home}/.${module}.ant.properties"/>
-    <echo message="user property file ${user.home}/.${module}.ant.properties"/>
-    <property file="${user.home}/.esgf.ant.properties"/>
-    <echo message="user property file ${user.home}/.esgf.ant.properties"/>
-    <property file="${basedir}/etc/${module}.ant.properties"/>
-    <echo message="user property file ${basedir}/etc/${module}.ant.properties"/>
+	  <property file="${user.home}/.${module}.ant.properties"/>
+	  <echo message="user property file ${user.home}/.${module}.ant.properties"/>
+	  <property file="${user.home}/.esgf.ant.properties"/>
+	  <echo message="user property file ${user.home}/.esgf.ant.properties"/>
+	  <property file="${basedir}/etc/${module}.ant.properties"/> 
+	  <echo message="user property file ${basedir}/etc/${module}.ant.properties"/>
 
-    <!--
-    <exec executable="bash" dir="${basedir}" outputproperty="version_num">
-      <arg value="-c"/>
-      <arg value="git describe | sed -n 's/v\([a-zA-Z0-9.]*\)[-]*.*/\1/p'"/>
-    </exec>
-    
-    <exec executable="bash" dir="${basedir}" outputproperty="branch">
-      <arg value="-c"/>
-      <arg value="git branch | grep '*' | sed -n 's/\*[ ]*//p'"/>
-    </exec>
+	  <exec executable="bash" dir="${basedir}" outputproperty="version_num">
+	    <arg value="-c"/>
+	    <arg value="git describe | sed -n 's/v\([a-zA-Z0-9.]*\)[-]*.*/\1/p'"/>
+	  </exec>
+	  <exec executable="bash" dir="${basedir}" outputproperty="branch">
+	    <arg value="-c"/>
+	    <arg value="git branch | grep '*' | sed -n 's/\*[ ]*//p'"/>
+	  </exec>
+	  <exec executable="bash" dir="${basedir}" outputproperty="commit">
+	    <arg value="-c"/>
+	    <arg value="git describe"/>
+	  </exec>
+	  <exec executable="bash" dir="${basedir}" outputproperty="release_name">
+	    <arg value="-c"/>
+	    <arg value="git tag | sed -ne 's/\(v[0-9]*\.[0-9]*\.[0-9]*\)-\([a-zA-Z0-9_-]*\)-release.*$/\2/p' | sort -k1,1 | tail -n 1"/>
+	  </exec>
 
-    <exec executable="bash" dir="${basedir}" outputproperty="commit">
-      <arg value="-c"/>
-      <arg value="git describe"/>
-    </exec>
+	  <property name="ivy_retrieve_type" value="jar"/>
+	  <property name="filter" value="false"/>
+	  <property name="sign"   value="false"/>
+	  <property name="seal"   value="false"/>
 
-    <exec executable="bash" dir="${basedir}" outputproperty="release_name">
-      <arg value="-c"/>
-      <arg value="git tag | sed -ne 's/\(v[0-9]*\.[0-9]*\)-\([a-zA-Z0-9_-]*\)-release.*$/\2/p' | sort -k1,1 | tail -n 1" />
-    </exec>
-    -->
-    
-    <property name="filter" value="false" />
-    <property name="sign" value="false" />
-    <property name="seal" value="false" />
- 
-    <!-- **static defines** -->
+	  <!-- **static defines** -->
+	  <property name="version_num" value="0.0.0"/>
+	  <filter token="version_num"  value="${version_num}"/>
+	  <property name="branch" value="[nobranch]"/>
+	  <filter token="branch"  value="${branch}"/>
+	  <property name="commit" value="ffffff"/>
+	  <filter token="commit"  value="${commit}"/>
+	  <property name="release_name" value="no_name"/>
+	  <filter token="release_name" value="${release_name}"/>
+	  <filter token="module" value="${module}"/>
 
-    <property name="version_num" value="0.0.0"/>
-    <echo message="${version_num}"/>
-    <filter token="version_num" value="${version_num}"/>
-    <property name="branch" value="[nobranch]"/>
-    <filter token="branch" value="${branch}"/>
-    <property name="commit" value="ffffff"/>
-    <filter token="commit" value="${commit}"/>
-    <property name="release_name" value="no_name" />
-    <filter token="release_name" value="${release_name}"/>
-    <filter token="module" value="${module}"/>
-    
+	  <!-- mail property values -->
+	  <property name="mail.smtp.host" value="no_name"/>
+	  <filter token="mail.smtp.host" value="${mail.smtp.host}"/>
+	  <property name="mail.admin.address" value="no_name"/>
+	  <filter token="mail.admin.address" value="${mail.admin.address}"/>
+	  <property name="mail.notification.messageTemplateFile" value="no_name"/>
+	  <filter token="mail.notification.messageTemplateFile" value="${mail.notification.messageTemplateFile}"/>
+	  <property name="mail.notification.initialDelay" value="no_name"/>
+	  <filter token="mail.notification.initialDelay" value="${mail.notification.initialDelay}"/>
+	  <property name="mail.notification.period" value="no_name"/>
+	  <filter token="mail.notification.period" value="${mail.notification.period}"/>
 
-    <!-- mail property values -->
+	  <!-- database property values -->
+	  <property name="db.driver" value="no_name"/>
+	  <filter token="db.driver" value="${db.driver}"/>
+	  <property name="db.protocol" value="no_name"/>
+	  <filter token="db.protocol" value="${db.protocol}"/>
+	  <property name="db.host" value="no_name"/>
+	  <filter token="db.host" value="${db.host}"/>
+	  <property name="db.port" value="no_name"/>
+	  <filter token="db.port" value="${db.port}"/>
+	  <property name="db.database" value="no_name"/>
+	  <filter token="db.database" value="${db.database}"/>
+	  <property name="db.user" value="no_name"/>
+	  <filter token="db.user" value="${db.user}"/>
+	  <property name="db.password" value="no_name"/>
+	  <filter token="db.password" value="${db.password}"/>
 
-    <property name="mail.smpt.host" value="no_name" />
-    <filter token="mail.smtp.host" value="${mail.smpt.host}"/>
-    <property name="mail.admin.address" value="no_name" />
-    <filter token="mail.smtp.address" value="${mail.admin.address}"/>
-    <property name="mail.notification.messageTemplateFile" value="no_name" />
-    <filter token="mail.notification.messageTemplateFile" value="${mail.notification.messageTemplateFile}" />
-    <property name="mail.notification.initialDelay" value="no_name" />
-    <filter token="mail.notification.initialDelay" value="${mail.notification.initialDelay}"/>
-    <property name="mail.notification.period" value="no_name" />
-    <filter token="mail.notification.period" value="${mail.notification.period}" />
+	  <property name="log_dir" value="/tmp/esg/logs"/>
+	  <mkdir dir="${log_dir}" />
+	  <filter token="log_dir"  value="${log_dir}"/>
 
-    <!-- database property values -->
-    <property name="db.driver" value="no_name" />
-    <filter token="db.driver" value="${db.driver}"/>
-    <property name="db.protocol" value="no_name" />
-    <filter token="db.protocol" value="${db.protocol}"/>
-    <property name="db.host" value="no_name"/>
-    <filter token="db.host" value="${db.host}"/>
-    <property name="db.port" value="no_name"/>
-    <filter token="db.port" value="${db.port}"/>
-    <property name="db.database" value="no_name"/>
-    <filter token="db.database" value="${db.database}"/>
-    <property name="db.user" value="no_name"/>
-    <filter token="db.user" value="${db.user}"/>
-    <property name="db.password" value="no_name"/>
-    <filter token="db.password" value="${db.password}"/>
+	  <property environment="env"/>
+	
+	
+	<target name="-pre-init" unless="build.master">
+	    <property name="build.compiler" value="javac1.5" /> 
+	    <property name="build.compiler.emacs" value="true" /> 
+	    <echo message="set build.compiler to ${build.compiler}"/>
+	  </target>
+	
+	<target name="init" depends="-pre-init" unless="build.master" 
+		  description="(View the properties defined in this file)">
+	    <echo message="Initializing build environment..."/>
+	        
+	    <!-- defaults to use if local .${module}.ant.properties file does not exist --> 
+	    <property name="src_dir"   	          value="${basedir}/src/java/main"/>
+	    <property name="lib_dir"   	          value="${basedir}/lib"/>
+	    <property name="lib_fetched_dir"      value="${basedir}/lib/fetched"/>
+	    <property name="lib_compile_dir"      value="${lib_fetched_dir}/compile"/>
+	    <property name="lib_runtime_dir"      value="${lib_fetched_dir}/runtime"/>
+	  	<!-- For BeStMan client Jars -->
+	  	<property name="lib_bestman_dir"	value="${basedir}/external_jars/BeStMan_client"/>
+	    
+	    <property name="build_dir"   	  value="${basedir}/build"/>
+	    <property name="dist_dir"   	  value="${basedir}/dist"/>
+	    <property name="bin_dir"              value="${basedir}/bin"/>
+	    <property name="test_src_dir"  	  value="${basedir}/src/java/test"/>
+	    <property name="test_build_dir"       value="${basedir}/build/test"/>
+	    <property name="test_build_dir_inst"  value="${basedir}/build/test-instrumented" />
+	    <property name="etc_dir"   	          value="${basedir}/etc"/>
+	    <property name="conf_dir"   	  value="${etc_dir}/conf"/>
+	    <property name="web_dir"   	          value="${basedir}/web"/>
+	    <property name="doc_dir"   	          value="${basedir}/docs"/>
+	    <property name="depcache_dir"     	  value="${java.io.tmpdir}/${module}/depcache"/>
+	    <property name="log_config"       	  value="${conf_dir}/log4j.properties"/>
+	    <property name="log_file"         	  value="${log_dir}/${module}_v${version_num}.log"/>
+	    <property name="javadoc_link_src" 	  value="false"/>
+	    <property name="main_class"           value="esgf.xxx.core.Main"/>
 
-    <property name="log_dir" value="/tmp/esg/logs"/>
-    <mkdir dir="${log_dir}" />
-    <filter token="log_dir" value="${log_dir}"/>
+	    <property name="doc_dir_generated"    value="${basedir}/docs-generated"/>
+	    <property name="jdoc_dir"   	  value="${doc_dir_generated}/javadocs"/>
+	    <property name="test_results_dir"     value="${doc_dir_generated}/test-results"/>
+	    <property name="test_reports_dir"     value="${doc_dir_generated}/test-reports"/>
+	    <property name="test_coverage_dir"    value="${doc_dir_generated}/coverage-reports" />
+	    <property name="lib_deps_reports_dir" value="${doc_dir_generated}/dep-reports"/>
 
-    <!-- ******** -->
+	    <property name="jaxb_xsd_dir"         value="${etc_dir}/xsd/"/>
+	    <property name="jaxb_gen_src_dir"     value="${src_dir}/esg/common/generated"/>
+	    <property name="jaxb_gen_package"     value="esgf.common.generated"/>
 
-  <!-- initialization and preparation -->
-  <target name="-pre-init" unless="build.master">
+	    <property name="test_last_failed_file" location="${build_dir}/.lasttestsfailed"/>
+	    <property name="test_coverage_file"   value="${basedir}/.cobertura.ser"/>
+	      
+	    <!--
+	    <property name="ivy.lib.dir"          value="${lib_fetched_dir}"/>
+	    -->
+	      
+	    <echo message="--------------------------------"/> 
+	    <echo message="module            = ${module} "/> 
+	    <echo message="version_num       = ${version_num} "/> 
+	    <echo message="release_name      = ${release_name} "/> 
+	    <echo message="--------------------------------"/> 
+	    <echo message="src_dir           = ${src_dir}"/>
+	    <echo message="lib_dir           = ${lib_dir}"/>
+	    <echo message="lib_fetched_dir   = ${lib_fetched_dir}"/>
+	    <echo message="build_dir         = ${build_dir}"/>
+	    <echo message="dist_dir          = ${dist_dir}"/>
+	    <echo message="build_dir         = ${build_dir}"/>
+	    <echo message="test_src_dir      = ${test_src_dir}"/>
+	    <echo message="test_build_dir    = ${test_build_dir}"/>
+	    <echo message="etc_dir           = ${etc_dir}"/>
+	    <echo message="conf_dir          = ${conf_dir}"/>
+	    <echo message="web_dir           = ${web_dir}"/>
+	    <echo message="doc_dir           = ${doc_dir}"/>
+	    <echo message="depcache_dir      = ${depcache_dir}"/>
+	    <echo message="log_config        = ${log_config}"/>
+	    <echo message="log_file          = ${log_file}"/>
+	    <echo message="javadoc_link_src  = ${javadoc_link_src}"/>
+	    <echo message="filter            = ${filter} "/> 
+	    <echo message="--------------------------------"/> 
+	    <echo message="doc_dir_generated    = ${basedir}/docs-generated"/>
+	    <echo message="jdoc_dir             = ${jdoc_dir}"/>
+	    <echo message="test_results_dir     = ${test_results_dir}"/>
+	    <echo message="test_reports_dir     = ${test_reports_dir}"/>
+	    <echo message="test_coverage_dir    = ${test_coverage_dir}"/>
+	    <echo message="lib_deps_reports_dir = ${doc_dir_generated}/dep-reports"/>
+	    <echo message="--------------------------------"/> 
+	    <tstamp/>
+	  </target> 
 
-    <property name="build.compiler" value="javac1.5"/>
-    <property name="build.compiler.emacs" value="true"/>
-    <echo message="set build.compiler to ${build.compiler}"/>
+	
+	
+	<target name="init-ivy" depends="init">
 
-  </target>  
+	    <property name="ivy_version" value="2.3.0" />
+	    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+	             uri="antlib:org.apache.ivy.ant"
+	             classpath="${lib_dir}/ivy-${ivy_version}.jar"/>
 
-  <target name="init" description="initialization" depends="-pre-init" unless="build.master">
-  	<echo message="Initializing build environment..."/>
-  	<echo message="${build.compiler}"/>
+	    <ivy:settings file="./ivysettings.xml"/>
 
-  	
-    <!-- defaults to use if local .${module}.ant.properties file does not exist -->
-
-
-    <property name="src_dir"	value="${basedir}/src/java/main"/>
-    <property name="lib_dir"	value="${basedir}/lib"/>
-    <property name="lib_fetched_dir"	value="${basedir}/lib/fetched"/>
-    <property name="lib_compile_dir"	value="${lib_fetched_dir}/compile"/>
-    <property name="lib_runtime_dir"	value="${lib_fetched_dir}/runtime"/>
-  	
-  	<!-- For BeStMan client Jars -->
-  	<property name="lib_bestman_dir"	value="${basedir}/external_jars/BeStMan_client"/>
-
-    <property name="build_dir"	value="${basedir}/build"/>
-    <property name="dist_dir"	value="${basedir}/dist"/>
-    <property name="bin_dir"	value="${basedir}/bin"/>
-    <property name="test_src_dir"	value="${basedir}/src/java/test"/>
-    <property name="test_build_dir"	value="${basedir}/build/test"/>
-    <property name="test_build_dir_inst"	value="${basedir}/build/test-instrumented"/>
-    <property name="etc_dir"	value="${basedir}/etc"/>
-    <property name="conf_dir"	value="${etc_dir}/etc"/>
-    <property name="web_dir"	value="${basedir}/web"/>
-    <property name="doc_dir"	value="${basedir}/docs"/>
-    <property name="depcache_dir"	value="${java.io.tmpdir}/${module}/depcache/"/>
-    <property name="log_config"	value="${conf_dir}/log4j.properties"/>
-    <property name="log_file"	value="${log_dir/${module}_v${version_num}.log"/>
-    <property name="javadoc_link_src"	value="false"/>
-    <property name="main_class"	value="esgf.xxx.core.Main"/>
-
-    <property name="doc_dir_generated"	value="${basedir}/docs-generated"/>
-    <property name="jdoc_dir" value="${doc_dir_generated}/javadocs"/>
-    <property name="test_results_dir"	value="${doc_dir_generated}/test-results"/>
-    <property name="test_coverage_dir"	value="${doc_dir_generated}/test-reports"/>
-    <property name="lib_deps_reports_dir"	value="${doc_dir_generated}/dep-reports"/>
-    
-    <property name="jaxb_xsd_dir"	value="${etc_dir}/xsd/"/>
-    <property name="jaxb_gen_src_dir"	value="${src_dir}/esg/common/generated"/>
-    <property name="jaxb_gen_package"	value="esgf.common.generated"/>
-
-    <property name="test_last_failed_file"	location="${build_dir}/.lasttestsfailed"/>
-    <property name="test_coverage_file"	value="${basedir}/.cobertura.ser"/>
-
-
-    <property name="ivy.install.version" value="2.0.1" />
-    <property name="ivy.jar.dir" value="${basedir}/ivy" />
-    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
-
-
-    <echo message="*************************************" />
-    <echo message="module	${module}" />
-    <echo message="version_num	${version_num}" />
-    <echo message="release_name	${release_name}" />
-    <echo message="*************************************" />
-<!--    <echo message="*************************************" />
-    <echo message="src_dir	${src_dir}" />
-    <echo message="lib_dir	${lib_dir}" />
-    <echo message="lib_fetched_dir	${lib_fetched_dir}" />
-    <echo message="build_dir	${build_dir}" />
-    <echo message="dist_dir	${dist_dir}" />
-    <echo message="test_src_dir	${test_src_dir}" />
-    <echo message="etc_dir	${etc_dir}" />
-    <echo message="conf_dir	${conf_dir}" />
-    <echo message="web_dir	${web_dir}" />
-    <echo message="doc_dir	${doc_dir}" />
-    <echo message="depcache_dir	${depcache_dir}" />
-    <echo message="log_config	${log_config}" />
-    <echo message="log_file	${log_file}" />
-    <echo message="javadoc_link_src	${javadoc_link_src}" />
-    <echo message="filter	${filter}" />
-    <echo message="*************************************" />
-    <echo message="*************************************" />
-    <echo message="doc_dir_generated	${basedir}/docs-generated" />
-    <echo message="jdoc_dir	${jdoc_dir}" />
-    <echo message="test_results_dir	${test_results_dir}" />
-    <echo message="test_reports_dir	${test_reports_dir}" />
-    <echo message="test_coverage_dir	${test_coverage_dir}" />
-    <echo message="libs_deps_reports_dir	${doc_dir_generated}/dep-reports" />
-    <echo message="*************************************" />
--->
-
-    <tstamp/>
-
-
-  </target>
-
-  <target name="init-ivy" depends="init">
-
-    <property name="ivy_version" value="2.1.0" />
-    <taskdef resource="org/apache/ivy/ant/antlib.xml"
-             uri="antlib:org.apache.ivy.ant"
-             classpath="${lib_dir}/ivy-${ivy_version}.jar"/>
-
-    <ivy:settings file="./ivysettings.xml"/>
-
-  </target>
+	</target>
   
-  <target name="deps" depends="init-ivy" description="(Sets up library dependencies: Ivy)">
-    <mkdir dir="${lib_fetched_dir}" />
-    <mkdir dir="${lib_compile_dir}" />
-    <mkdir dir="${lib_runtime_dir}" />
-    
-    <ivy:resolve />
-    <ivy:retrieve pattern="${lib_fetched_dir}/[conf]/[artifact]-[revision].[ext]" />
-    <ivy:deliver deliverpattern="dist/[artifact]-[revision].[ext]"
-                 pubrevision="${version_num}" status="milestone" />
-    
-    <ivy:cachepath pathid="compile.classpath" conf="compile" useOrigin="true" />
-    <ivy:cachepath pathid="runtime.classpath" conf="runtime" useOrigin="true" />
-    
-    <path id="main_classpath">
-      <fileset dir="${lib_dir}">
-	<include name="**/*.jar"/>
-	<exclude name="**/junit*.jar"/>
-	<exclude name="**/*javadoc.jar"/>
-	<exclude name="**/*sources.jar"/>
-      </fileset>
-    	<fileset dir="${lib_bestman_dir}">
-    		<include name="*.jar"/>
-    		
-    	</fileset>
-      <pathelement path="${build_dir}"/>
-    </path>
-    
-    <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-        <classpath refid="compile.classpath"/>
-    </taskdef>
-      
-    <echo message="Runtime Classpath:" />
-    <pathconvert property="_cp" refid="runtime.classpath" pathsep="${line.separator}"/>
-    <echo>${_cp}</echo>
-    <echo message="--------------------------------"/> 
-      
-    
-    
-  </target>
+	<target name="deps" depends="init-ivy" description="(Sets up library dependencies: Ivy)">
+	    <mkdir dir="${lib_fetched_dir}" />
+	    <mkdir dir="${lib_compile_dir}" />
+	    <mkdir dir="${lib_runtime_dir}" />
 
+	    <ivy:resolve type="${ivy_retrieve_type}"/>
+	    <ivy:retrieve pattern="${lib_fetched_dir}/[conf]/[artifact]-[revision].[ext]" />
+	    <ivy:deliver deliverpattern="dist/[artifact]-[revision].[ext]"
+	                 pubrevision="${version_num}" status="milestone" />
+	      
+	    <ivy:cachepath pathid="compile.classpath" conf="compile" useOrigin="true" />
+	    <ivy:cachepath pathid="runtime.classpath" conf="runtime" useOrigin="true" />
+	      
+		<path id="main_classpath">
+		      <fileset dir="${lib_dir}">
+			<include name="**/*.jar"/>
+			<exclude name="**/junit*.jar"/>
+			<exclude name="**/*javadoc.jar"/>
+			<exclude name="**/*sources.jar"/>
+		      </fileset>
+		    	<fileset dir="${lib_bestman_dir}">
+		    		<include name="*.jar"/>
+		    		
+		    	</fileset>
+		      <pathelement path="${build_dir}"/>
+		    </path>
 
-  <target name="dep_report" depends="deps" description="(Generates a report of library dependencies)">
-    <mkdir dir="${lib_deps_reports_dir}"/>
-    <ivy:report todir="${lib_deps_reports_dir}"/>
-  </target>
+	    <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+	        <classpath refid="compile.classpath"/>
+	    </taskdef>
+	      
+	    <echo message="Runtime Classpath:" />
+	    <pathconvert property="_cp" refid="runtime.classpath" pathsep="${line.separator}"/>
+	    <echo>${_cp}</echo>
+	    <echo message="--------------------------------"/> 
+	      
+	  </target>
+
+	
+	
+	<target name="dep_clean_cache" depends="init,init-ivy" description="(Cleans the Ivy cache)">
+	    <ivy:cleancache />
+	</target>
   
-  <target name="dep_clean_cache" depends="init,init-ivy" description="(Cleans the Ivy cache)">
-    <ivy:cleancache />
-  </target>
+	<target name="dep_clean_libs" depends="init"
+		  description="(Cleans out [removes] local workspace jars fetched by Ivy)">
+	    <echo message="Removing local jars fetched by Ivy"/>
+	    <delete dir="${lib_fetched_dir}"/>
+	  </target>
 
-  <target name="dep_clean_libs" depends="init"
-	  description="(Cleans out [removes] local workspace jars fetched by Ivy)">
-    <echo message="Removing local jars fetched by Ivy"/>
-    <delete dir="${lib_fetched_dir}"/>
-  </target>
-  
-  <target name="make" depends="deps" 
-	  description="(Java compiles all the main source code)">
-    <echo message="Java compiling ${module}..."/> 
-    
+	
+	<!--
+	      ************************************************************
+	      Generation  and Compilation....
+	      ************************************************************
+	    -->
 
-    <delete dir="${build_dir}"/>
-  	
-    <mkdir dir="${build_dir}" />
-    <mkdir dir="${depcache_dir}" />
-   
-        
-    <depend srcdir="${src_dir}"
-	    destdir="${build_dir}"
-	    cache="${depcache_dir}"
-	    closure="yes"/>
-   
-   <!--
-      Insert a mkdir in case there is no src dir
-   -->
+	  <target name="make" depends="deps" 
+		  description="(Java compiles all the main source code)">
+	    <echo message="Java compiling ${module}..."/> 
 
-  	
-    <javac srcdir="${src_dir}"
-	   destdir="${build_dir}" 
-	   includes="**/*.java" 
-	   excludes="**/no_comp/**,**/ignore/**,**/*_,**/*_*/**"
-	   classpathref="main_classpath"
-	   debug="on"
-	   verbose="off"
-           includeantruntime="false"
-	   nowarn="on">
-      <compilerarg value="-Xlint"/>
-    </javac>
-   
-   
-    <copy todir="${build_dir}" filtering="${filter}" overwrite="true">
-      <fileset dir="${conf_dir}" includes="**/*.properties,**/*.template,**/*filter-web.xml"/>
-    
-      <fileset dir="${src_dir}" includes="**/*.properties,**/*.template,**/*.xml,**/*.txt"/>
-    </copy> 
-   
-   
-    <tstamp />
-   
-  </target>
-  
-  
-<!-- PREP & PACKAGE -->
-
-  <target name="make_jar" depends="make"
-          description="(Creates the jar file distribution)">
-    <!--
-    <echo message="JAR - ${build_dir} ->> ${dist_dir}/${module}.${version_num}.jar"/>
-        -->
-    <delete>
-      <fileset dir="." includes="${dist_dir}/${module}.${version_num}.jar"/>
-    </delete>
-    <mkdir dir="${dist_dir}" />
-    
-  	<!-- For BeStMan client files -->
-  	<copy todir="${dist_dir}/tmplib" overwrite="true" flatten="yes">
-      <fileset dir="${lib_bestman_dir}" includes="*.jar" />
-    	<!-- <fileset dir="${lib_bestman_dir}" includes="**/*.class" /> -->
-    </copy>
-    
-    <jar destfile="${dist_dir}/${module}.${version_num}.jar">
-      <fileset dir="${build_dir}"
-	       includes="org.esgf/**,org/esgf/**,**/*.properties,**/*filter-web.xml"
-	       excludes="**/test/**,**/test-instrumented/**"/>
-      <manifest>
-	  <attribute name="Organization" value="${organization}"/>
-	  <attribute name="Author"       value="${author}"/>
-	  <attribute name="Project"      value="${project_name}"/>
-	  <attribute name="Module"       value="${module}"/>
-	  <attribute name="Version"      value="${version_num}"/>
-	  <attribute name="Branch"       value="${branch}"/>
-	  <attribute name="Commit"       value="${commit}"/>
-	  <attribute name="Release-Name" value="${release_name}"/>
-	  <attribute name="Main-Class"   value="${main_class}"/>
-	  <section name="esg/">
-	    <attribute name="Sealed" value="false"/>
-	  </section>
-      </manifest>
-    </jar>
-  	<delete dir="${dist_dir}/tmplib"/>
-    
-  </target>
-  
-  <target name="make_war" depends="make,init"
-	  description="(Creates war file of this project)">
+	  	<echo message="ant.java.version: ${ant.java.version}" />
+	 
 	  
-    <mkdir dir="${dist_dir}" />
-    <mkdir dir="${dist_dir}/tmplib"/>
-    
-    <copy todir="${dist_dir}/tmplib" overwrite="true" flatten="yes">
-      <fileset dir="${lib_runtime_dir}" includes="**/*.jar" />
-    </copy>
-  	
-  	<!-- For BeStMan client files -->
-  	<copy todir="${dist_dir}/tmplib" overwrite="true" flatten="yes">
-      <fileset dir="${lib_bestman_dir}" includes="*.jar" />
-    	<!-- <fileset dir="${lib_bestman_dir}" includes="**/*.class" /> -->
-    </copy>
-    
-  	<!-- <copy todir="${build_dir}" overwrite="true" >
-  	  <fileset dir="${etc_dir}" />	
-  		<fileset dir="${lib_bestman_dir}" includes="**/*" excludes="**/*.jar" />
-  	</copy> -->
-  	
-    <delete file="${dist_dir}/${module}.war"/>
-      
-  	
-    <war destfile="${dist_dir}/${module}.war" webxml="${web_dir}/WEB-INF/web.xml">
-      <fileset dir="${web_dir}" excludes="**semantic.cache**"/>
-      <lib dir="${dist_dir}/tmplib">
-	<include name="**/*.jar"/>
-      	<!-- <include name="**/*.class"/> -->
-	<exclude name="**/*-test*.jar,**/*-common*.jar"/>
-      </lib>
-      <classes dir="${build_dir}"/>
-      <manifest>
-	<attribute name="Organization" value="${organization}"/>
-	<attribute name="Author"       value="${author}"/>
-	<attribute name="Project"      value="${project_name}"/>
-	<attribute name="Module"       value="${module}"/>
-	<attribute name="Version"      value="${version_num}"/>
-	<attribute name="Branch"       value="${branch}"/>
-	<attribute name="Commit"       value="${commit}"/>
-	<attribute name="Release-Name" value="${release_name}"/>
-      </manifest>
-    </war>
-    <delete dir="${dist_dir}/tmplib"/>
-  
-  
-  </target>
+	  
+	  
+	  	<mkdir dir="${build_dir}" />
+	  	    <mkdir dir="${depcache_dir}" />
+	  	        
+	  	    <depend srcdir="${src_dir}"
+	  		    destdir="${build_dir}"
+	  		    cache="${depcache_dir}"
+	  		    closure="yes"/>
+	  	    
+	  	    <javac srcdir="${src_dir}"
+	  		   destdir="${build_dir}" 
+	  		   includes="**/*.java" 
+	  		   excludes="**/no_comp/**,**/ignore/**,**/*_,**/*_*/**"
+	  		   classpathref="main_classpath"
+	  		   debug="on"
+	  		   verbose="off"
+	  	           includeantruntime="false"
+	  		   nowarn="on">
+	  	      <compilerarg value="-Xlint"/>
+	  	    </javac>
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+	  	    <copy todir="${build_dir}" filtering="${filter}" overwrite="true">
+	  	      <fileset dir="${conf_dir}" includes="**/*.properties,**/*.template,**/*filter-web.xml"/>
+	  	      <fileset dir="${src_dir}" includes="**/*.properties,**/*.template,**/*.xml,**/*.txt"/>
+	  	    </copy> 
+
+	  	    <tstamp/>
+	  
+	 </target>
+	
+	<!--
+	      ************************************************************
+	      PREPARATION & PACKAGING....
+	      ************************************************************
+	    -->
+	  <target name="make_jar" depends="make"
+		  description="(Creates the jar file distribution of this project)">
+	    <echo message="JAR -  ${build_dir} ->> ${dist_dir}/${module}.${version_num}.jar"/>
+	    <delete>
+	      <fileset dir="." includes="${dist_dir}/${module}.${version_num}.jar"/>
+	    </delete>
+	    <mkdir dir="${dist_dir}" />
+	    <jar destfile="${dist_dir}/${module}.${version_num}.jar">
+	      <fileset dir="${build_dir}"
+		       includes="org.esgf/**,**/*.properties,**/*filter-web.xml"
+		       excludes="**/test/**,**/test-instrumented/**"/>
+	      <manifest>
+		<attribute name="Organization" value="${organization}"/>
+		<attribute name="Author"       value="${author}"/>
+		<attribute name="Project"      value="${project_name}"/>
+		<attribute name="Module"       value="${module}"/>
+		<attribute name="Version"      value="${version_num}"/>
+		<attribute name="Branch"       value="${branch}"/>
+		<attribute name="Commit"       value="${commit}"/>
+		<attribute name="Release-Name" value="${release_name}"/>
+		<attribute name="Main-Class"   value="${main_class}"/>
+		<section name="esg/">
+		  <attribute name="Sealed" value="false"/>
+		</section>
+	      </manifest>
+	    </jar>
+	  </target>
+
+	
+	
+	
+
+	<target name="make_all_jars" depends="make_jar" />
+	
+	
+	<target name="make_war" depends="make,init"
+		  description="(Creates war file of this project)">
+	    <mkdir dir="${dist_dir}" />
+	    <mkdir dir="${dist_dir}/tmplib"/>
+	    
+	    <copy todir="${dist_dir}/tmplib" overwrite="true" flatten="yes">
+	      <fileset dir="${lib_runtime_dir}" includes="**/*.jar" />
+	    </copy>
+	    
+		<!-- For BeStMan client files -->
+		  	<copy todir="${dist_dir}/tmplib" overwrite="true" flatten="yes">
+		      <fileset dir="${lib_bestman_dir}" includes="*.jar" />
+		    	<!-- <fileset dir="${lib_bestman_dir}" includes="**/*.class" /> -->
+		    </copy>
+		
+	  	<!-- views.properties bug resolved here
+	  	     Note: I'm not sure where this should go at the present time
+	  	     Probably should make a cosmetic change later
+	  	-->
+	  	
+	  	<copy todir="${build_dir}" overwrite="true" >
+	  	  <fileset dir="${etc_dir}" />	
+	  	</copy>
+	  	
+	  	<!-- end views.properties bug-->
+	  	
+	    <delete file="${dist_dir}/${module}.war"/>
+	      
+	    <war destfile="${dist_dir}/${module}.war" webxml="${web_dir}/WEB-INF/web.xml">
+	      <fileset dir="${web_dir}" excludes="**semantic.cache**"/>
+	      <lib dir="${dist_dir}/tmplib">
+		<include name="**/*.jar"/>
+		<exclude name="**/*-test*.jar,**/*-common*.jar"/>
+	      </lib>
+	      <classes dir="${build_dir}"/>
+	      <manifest>
+		<attribute name="Organization" value="${organization}"/>
+		<attribute name="Author"       value="${author}"/>
+		<attribute name="Project"      value="${project_name}"/>
+		<attribute name="Module"       value="${module}"/>
+		<attribute name="Version"      value="${version_num}"/>
+		<attribute name="Branch"       value="${branch}"/>
+		<attribute name="Commit"       value="${commit}"/>
+		<attribute name="Release-Name" value="${release_name}"/>
+	      </manifest>
+	    </war>
+	    <delete dir="${dist_dir}/tmplib"/>
+	  </target>
+
+	<target name="make_dist" depends="make_war,make_all_jars"
+		  description="(Creates full software distribution)">
+	    <delete file="${dist_dir}/${module}.${version_num}.tar.gz"/> 
+	    <tar destfile="${dist_dir}/${module}.${version_num}.tar">
+	      <tarfileset dir="${dist_dir}" includes="**/*.jar,**/*.war" prefix="${module}.${version_num}"/>
+	      <!-- <tarfileset dir="${etc_dir}/db" prefix="${module}.${version_num}/db"/> -->
+	      <tarfileset dir="${basedir}" prefix="${module}.${version_num}">
+		<include name="LICENSE"/>
+		<include name="INSTALL"/>
+		<include name="README"/>
+	      </tarfileset>
+	    </tar>
+	    <gzip destfile="${dist_dir}/${module}.${version_num}.tar.gz" src="${dist_dir}/${module}.${version_num}.tar"/>
+	    <delete file="${dist_dir}/${module}.${version_num}.tar"/> 
+
+	  </target>
+
+	
+	<!--
+	      ************************************************************
+	      CLEANING....
+	      ************************************************************
+	    -->
+	  
+	  <target name="clean" depends="init" 
+		  description="(Cleans out classfiles from build dir)">
+	    <echo message="Removing build directory"/> 
+	    <delete dir="${build_dir}"/>
+	    <delete dir="${doc_dir_generated}"/>
+	    <delete file="${test_coverage_file}"/>
+	    <delete dir="${test_build_dir_inst}"/>
+	    <tstamp/>
+	  </target>
+
+	  
+	  <target name="clean_dist" depends="init" 
+		  description="(Cleans out the distribution directory)">
+	    <echo message="Cleaning out distribution directory"/> 
+	    <delete dir="${dist_dir}"/>
+	    <tstamp/>
+	  </target>
+
+	  <target name="clean_test" depends="init" 
+		  description="(Cleans out the test build directory)">
+	    <echo message="Cleaning out test build directory"/> 
+	    <delete dir="${test_build_dir}"/>
+	    <tstamp/>
+	  </target>
+
+	  <target name="clean_test_jar" depends="init" 
+		  description="(Cleans out the test jar file)">
+	    <echo message="Cleaning out test jar file"/> 
+	    <delete file="${dist_dir}/${module}-test.${version_num}.jar"/>
+	    <tstamp/>
+	  </target>
+
+	  <target name="clean_jaxb" depends="init"
+		  description="(Cleans out the JAXB generated Java source files!)">
+	    <echo message="Removing JAXB generated Java source files"/>
+	    <delete dir="${jaxb_gen_src_dir}"/>
+	  </target>
+
+	  <target name="clean_all"
+		  depends="clean,clean_dist,clean_jaxb,dep_clean_libs"
+		  description="(Cleans out generatable artifacts)">
+	    <delete file="${bin_dir}/post.manif"/>
+	  </target>
+	  
+	
+	
   
 </project>
